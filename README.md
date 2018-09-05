@@ -1,2 +1,2 @@
-# static-event-sourcing-todo
-Todo app. Static site with event-sourced application state persisted in IndexedDB. Use the app! @ https://jbrianskog.github.io/static-event-sourcing-todo/
+# MuchDone
+Goal is to expand https://github.com/jbrianskog/static-event-sourcing-todo/ i.e. store the event stream to a hosted backend (Firebase) so the todo list can get pushed updates across devices with an account login.
