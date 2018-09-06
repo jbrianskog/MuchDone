@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CompletedTodo } from "domain/todo";
-import { CompletedTodoTitle } from "./completed-todo-title";
+import { CompletedTodoTitle } from "components/todo-list-panel/completed-todo-list/completed-todo-list-item/completed-todo-panel/completed-todo-title";
 
 export interface HistoryCompletedTodoListItemProps {
   todo: CompletedTodo;

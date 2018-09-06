@@ -1,8 +1,8 @@
 import * as React from "react";
 import { CompletedTodo, Todo, TodoIdType } from "domain/todo";
-import { CompletedTodoList } from "./completed-todo-list";
-import { TodoAddForm } from "./todo-add-form";
-import { TodoList } from "./todo-list";
+import { CompletedTodoList } from "./todo-list-panel/completed-todo-list";
+import { TodoAddForm } from "./todo-list-panel/todo-add-form";
+import { TodoList } from "./todo-list-panel/todo-list";
 
 export interface TodoListPanelProps {
   todos: Todo[];

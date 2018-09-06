@@ -1,8 +1,8 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
 import { Todo } from "domain/todo";
-import { TodoPanelBtnGroup } from "./todo-panel-btn-group";
-import { TodoTitle } from "./todo-title";
+import { TodoPanelBtnGroup } from "./todo-panel/todo-panel-btn-group";
+import { TodoTitle } from "./todo-panel/todo-title";
 
 export interface TodoPanelProps {
   todo: Todo;

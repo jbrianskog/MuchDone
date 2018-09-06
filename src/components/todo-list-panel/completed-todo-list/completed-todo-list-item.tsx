@@ -1,15 +1,13 @@
 import * as React from "react";
-import { Todo, TodoIdType } from "domain/todo";
-import { TodoActionsPanel } from "./todo-actions-panel";
-import { TodoPanel } from "./todo-panel";
-import { TodoRenamePanel } from "./todo-rename-panel";
+import { CompletedTodo, TodoIdType } from "domain/todo";
+import { CompletedTodoActionsPanel } from "./completed-todo-list-item/completed-todo-actions-panel";
+import { CompletedTodoPanel } from "./completed-todo-list-item/completed-todo-panel";
+import { CompletedTodoRenamePanel } from "./completed-todo-list-item/completed-todo-rename-panel";
 
-export interface TodoListItemProps {
-  todo: Todo;
-  completeTodo(id: TodoIdType): void;
+export interface CompletedTodoListItemProps {
+  todo: CompletedTodo;
+  uncompleteTodo(id: TodoIdType): void;
   deleteTodo(id: TodoIdType): void;
-  moveTodoUp(id: TodoIdType): void;
-  moveTodoDown(id: TodoIdType): void;
   renameTodo(id: TodoIdType, name: string): void;
 }
 
@@ -19,28 +17,22 @@ enum PanelType {
   RenamePanel,
 }
 
-interface TodoListItemState {
+interface CompletedTodoListItemState {
   panel: PanelType;
 }
 
-export class TodoListItem extends React.PureComponent<TodoListItemProps, TodoListItemState> {
-  constructor(props: TodoListItemProps) {
+export class CompletedTodoListItem extends React.PureComponent<CompletedTodoListItemProps, CompletedTodoListItemState> {
+  constructor(props: CompletedTodoListItemProps) {
     super(props);
     this.state = {
       panel: PanelType.DefaultPanel
     };
   }
-  completeTodo = () => {
-    this.props.completeTodo(this.props.todo.id);
+  uncompleteTodo = () => {
+    this.props.uncompleteTodo(this.props.todo.id);
   }
   deleteTodo = () => {
     this.props.deleteTodo(this.props.todo.id);
-  }
-  moveTodoUp = () => {
-    this.props.moveTodoUp(this.props.todo.id);
-  }
-  moveTodoDown = () => {
-    this.props.moveTodoDown(this.props.todo.id);
   }
   renameTodo = (name: string) => {
     this.props.renameTodo(this.props.todo.id, name);
@@ -65,20 +57,18 @@ export class TodoListItem extends React.PureComponent<TodoListItemProps, TodoLis
     switch (this.state.panel) {
       case PanelType.DefaultPanel: {
         panel =
-          <TodoPanel
+          <CompletedTodoPanel
             todo={this.props.todo}
-            completeTodo={this.completeTodo}
+            uncompleteTodo={this.uncompleteTodo}
             showActionsPanel={this.showActionsPanel}
           />;
         break;
       }
       case PanelType.ActionsPanel: {
         panel =
-          <TodoActionsPanel
+          <CompletedTodoActionsPanel
             todo={this.props.todo}
             deleteTodo={this.deleteTodo}
-            moveTodoUp={this.moveTodoUp}
-            moveTodoDown={this.moveTodoDown}
             showDefaultPanel={this.showDefaultPanel}
             showRenamePanel={this.showRenamePanel}
           />;
@@ -86,7 +76,7 @@ export class TodoListItem extends React.PureComponent<TodoListItemProps, TodoLis
       }
       case PanelType.RenamePanel: {
         panel =
-          <TodoRenamePanel
+          <CompletedTodoRenamePanel
             todo={this.props.todo}
             renameTodo={this.renameTodo}
             showDefaultPanel={this.showDefaultPanel}

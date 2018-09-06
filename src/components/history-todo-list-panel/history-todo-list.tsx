@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Todo } from "domain/todo";
-import { HistoryTodoListItem } from "./history-todo-list-item";
+import { HistoryTodoListItem } from "./history-todo-list/history-todo-list-item";
 
 export interface HistoryTodoListProps {
   todos: Todo[];

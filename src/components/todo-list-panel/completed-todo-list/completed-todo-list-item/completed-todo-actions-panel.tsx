@@ -1,9 +1,9 @@
 import * as React from "react";
 import { CompletedTodo } from "domain/todo";
-import { CompletedTodoTitle } from "./completed-todo-title";
-import { TodoActionsPanelBtnGroup } from "./todo-actions-panel-btn-group";
-import { TodoDeleteBtn } from "./todo-delete-btn";
-import { TodoRenameBtn } from "./todo-rename-btn";
+import { CompletedTodoTitle } from "./completed-todo-panel/completed-todo-title";
+import { TodoActionsPanelBtnGroup } from "components/todo-list-panel/todo-list/todo-list-item/todo-actions-panel/todo-actions-panel-btn-group";
+import { TodoDeleteBtn } from "components/todo-list-panel/todo-list/todo-list-item/todo-actions-panel/todo-delete-btn";
+import { TodoRenameBtn } from "components/todo-list-panel/todo-list/todo-list-item/todo-actions-panel/todo-rename-btn";
 
 export interface CompletedTodoActionsPanelProps {
   todo: CompletedTodo;

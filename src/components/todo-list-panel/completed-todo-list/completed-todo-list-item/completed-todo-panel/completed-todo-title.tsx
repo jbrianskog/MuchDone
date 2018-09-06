@@ -1,5 +1,4 @@
 import * as React from "react";
-import { TodoTitle } from "./todo-title";
 
 export interface CompletedTodoTitleProps {
   title: string;

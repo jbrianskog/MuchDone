@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CompletedTodo, Todo } from "domain/todo";
-import { HistoryCompletedTodoList } from "./history-completed-todo-list";
-import { HistoryTodoList } from "./history-todo-list";
+import { HistoryCompletedTodoList } from "./history-todo-list-panel/history-completed-todo-list";
+import { HistoryTodoList } from "./history-todo-list-panel/history-todo-list";
 
 export interface HistoryTodoListPanelProps {
   todos: Todo[];
