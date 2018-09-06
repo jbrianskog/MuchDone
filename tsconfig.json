@@ -8,11 +8,7 @@
         "strict": true,
         "jsx": "react",
     },
-    "exclude": [
-        "node_modules",
-        "docs",
-        "build",
-        "assets",
-        "webpack.config.ts",
+    "include": [
+      "./src/**/*"
     ]
 }

@@ -32,6 +32,7 @@ module.exports = (env: any) : Configuration => {
   ];
 
   return {
+    context: Path.resolve(__dirname, 'src'),
     entry: "./app.tsx",
     output: (ENV_PRODUCTION)
     ? {
@@ -45,12 +46,10 @@ module.exports = (env: any) : Configuration => {
       rules: [
         {
           test: /\.tsx?$/,
-          exclude: /node_modules/,
           use: "ts-loader",
         },
         {
           test: /\.css$/,
-          exclude: /node_modules/,
           use: [
             MiniCssExtractPlugin.loader,
             "css-loader"
