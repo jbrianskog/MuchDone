@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Body } from "components/body";
-import { todoListId } from "read";
+import { todoListId } from "data";
 import "styles.css";
 
 if (!window.indexedDB) {
