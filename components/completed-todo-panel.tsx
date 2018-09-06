@@ -11,10 +11,10 @@ export interface CompletedTodoPanelProps {
 }
 
 export class CompletedTodoPanel extends React.PureComponent<CompletedTodoPanelProps> {
-  btnGroup: HTMLElement;
+  btnGroup!: HTMLElement;
   btnGroupRef: React.Ref<TodoPanelBtnGroup> = comp => {
     if (comp) {
-      this.btnGroup = findDOMNode(comp);
+      this.btnGroup = findDOMNode(comp) as HTMLElement;
     }
   }
   onClick: React.MouseEventHandler<HTMLAnchorElement> = e => {

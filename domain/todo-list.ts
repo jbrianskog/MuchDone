@@ -4,7 +4,7 @@ import { TodoAdded, TodoCompleted, TodoPositionChanged, TodoRemoved, TodoRenamed
 import { CompletedTodo, Todo, TodoIdType } from "./todo";
 
 export class TodoList extends AggregateRoot {
-    protected _todos: (Todo | CompletedTodo)[];
+    protected _todos!: (Todo | CompletedTodo)[];
     get todos(): Todo[] {
         return this._todos.filter(x => !x.isCompleted);
     }

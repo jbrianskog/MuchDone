@@ -4,11 +4,11 @@ export type DomainEventHandler = (e: UncommittedDomainEvent) => void;
 
 export abstract class AggregateRoot {
     [key: string]: any;
-    private _uncommittedEvents: UncommittedDomainEvent[];
+    private _uncommittedEvents!: UncommittedDomainEvent[];
     get uncommittedEvents(): UncommittedDomainEvent[] {
         return this._uncommittedEvents;
     }
-    protected _id: AggregateIdType;
+    protected _id!: AggregateIdType;
     get id(): AggregateIdType {
         return this._id;
     }

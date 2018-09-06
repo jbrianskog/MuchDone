@@ -41,11 +41,11 @@ export async function allDomainEvents(version?: number): Promise<DomainEvent[]> 
     let events = [] as DomainEvent[];
     let tx = db.transaction(domainEventStoreName);
     let store = tx.objectStore(domainEventStoreName);
-    function cursorCallback(cursor: Cursor): void {
+    function cursorCallback(cursor: Cursor<DomainEvent, Number>): void {
         if (!cursor) {
             return;
         }
-        events.push(cursor.value as DomainEvent);
+        events.push(cursor.value);
         // tslint:disable-next-line:no-floating-promises
         cursor.continue();
     }
@@ -63,11 +63,11 @@ export async function domainEventsByAggregate(aggregateId: AggregateIdType, vers
     let events = [] as DomainEvent[];
     let tx = db.transaction(domainEventStoreName);
     let index = tx.objectStore(domainEventStoreName).index(aggregateIdPropName);
-    function cursorCallback(cursor: Cursor): void {
+    function cursorCallback(cursor: Cursor<DomainEvent, Number>): void {
         if (!cursor) {
             return;
         }
-        let event = cursor.value as DomainEvent;
+        let event = cursor.value;
         if (!version || event.id <= version) {
             events.push(event);
         }

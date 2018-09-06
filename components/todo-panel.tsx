@@ -11,10 +11,10 @@ export interface TodoPanelProps {
 }
 
 export class TodoPanel extends React.PureComponent<TodoPanelProps> {
-  btnGroup: HTMLElement;
+  btnGroup!: HTMLElement;
   btnGroupRef: React.Ref<TodoPanelBtnGroup> = comp => {
     if (comp) {
-      this.btnGroup = findDOMNode(comp);
+      this.btnGroup = findDOMNode(comp) as HTMLElement;
     }
   }
   onClick: React.MouseEventHandler<HTMLAnchorElement> = e => {

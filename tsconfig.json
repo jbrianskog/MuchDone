@@ -3,24 +3,16 @@
     "compilerOptions": {
         "target": "es2015",
         "module": "commonjs",
-        "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "build",
         "strict": true,
         "jsx": "react",
-        "plugins": [
-            {
-                "name": "tslint-language-service",
-                "alwaysShowRuleFailuresAsWarnings": true,
-                "ignoreDefinitionFiles": true
-            }
-        ]
     },
     "exclude": [
         "node_modules",
         "docs",
         "build",
         "assets",
-        "webpack.config.ts"
+        "webpack.config.ts",
     ]
 }
