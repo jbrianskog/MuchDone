@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CompletedTodo, TodoIdType } from "../domain/todo";
+import { CompletedTodo, TodoIdType } from "domain/todo";
 import { CompletedTodoActionsPanel } from "./completed-todo-actions-panel";
 import { CompletedTodoPanel } from "./completed-todo-panel";
 import { CompletedTodoRenamePanel } from "./completed-todo-rename-panel";

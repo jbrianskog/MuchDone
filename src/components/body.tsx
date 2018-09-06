@@ -1,9 +1,9 @@
 import * as React from "react";
 import { v4 as uuid } from "uuid";
-import { TodoIdType } from "../domain/todo";
-import { TodoList } from "../domain/todo-list";
-import { AggregateIdType, DomainEvent, domainEventsByAggregate, postDomainEvents } from "../event-store";
-import { todoListEvents } from "../read";
+import { TodoIdType } from "domain/todo";
+import { TodoList } from "domain/todo-list";
+import { AggregateIdType, DomainEvent, domainEventsByAggregate, postDomainEvents } from "event-store";
+import { todoListEvents } from "read";
 import { EventList } from "./event-list";
 import { EventListEmpty } from "./event-list-empty";
 import { HistoryTodoListPanel } from "./history-todo-list-panel";

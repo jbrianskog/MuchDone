@@ -7,6 +7,7 @@
         "outDir": "build",
         "strict": true,
         "jsx": "react",
+        "baseUrl": "src",
     },
     "include": [
       "./src/**/*"

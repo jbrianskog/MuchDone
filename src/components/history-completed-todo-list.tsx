@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CompletedTodo } from "../domain/todo";
+import { CompletedTodo } from "domain/todo";
 import { HistoryCompletedTodoListItem } from "./history-completed-todo-list-item";
 
 export interface HistoryCompletedTodoListProps {

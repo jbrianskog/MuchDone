@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Todo } from "../domain/todo";
+import { Todo } from "domain/todo";
 import { TodoRenameForm } from "./todo-rename-form";
 
 export interface TodoRenamePanelProps {

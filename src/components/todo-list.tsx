@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Todo, TodoIdType } from "../domain/todo";
+import { Todo, TodoIdType } from "domain/todo";
 import { TodoListItem } from "./todo-list-item";
 
 export interface TodoListProps {

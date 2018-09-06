@@ -1,6 +1,6 @@
 import * as React from "react";
 import OnClickOut, { InjectedOnClickOutProps } from "react-onclickoutside";
-import { Todo } from "../domain/todo";
+import { Todo } from "domain/todo";
 
 export interface TodoRenameFormProps {
   todo: Todo;

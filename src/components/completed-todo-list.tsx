@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CompletedTodo, TodoIdType } from "../domain/todo";
+import { CompletedTodo, TodoIdType } from "domain/todo";
 import { CompletedTodoListItem } from "./completed-todo-list-item";
 
 export interface CompletedTodoListProps {

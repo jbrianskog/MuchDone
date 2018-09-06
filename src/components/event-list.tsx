@@ -1,6 +1,6 @@
 import * as React from "react";
 import OnClickOut, { InjectedOnClickOutProps } from "react-onclickoutside";
-import { DomainEvent } from "../event-store";
+import { DomainEvent } from "event-store";
 import { EventListItem } from "./event-list-item";
 
 export interface EventListProps {

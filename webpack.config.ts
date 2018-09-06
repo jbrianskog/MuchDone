@@ -58,6 +58,10 @@ module.exports = (env: any) : Configuration => {
       ],
     },
     resolve: {
+      modules: [
+        Path.resolve(__dirname, "src"),
+        "node_modules",
+      ],
       extensions: [".tsx", ".ts", ".jsx", ".js", ],
     },
     mode: env.NODE_ENV,

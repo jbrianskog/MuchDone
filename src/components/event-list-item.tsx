@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DomainEvent, DomainEventType } from "../event-store";
+import { DomainEvent, DomainEventType } from "event-store";
 
 export interface EventListItemProps {
   event: DomainEvent;

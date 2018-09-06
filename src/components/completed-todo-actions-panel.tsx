@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CompletedTodo } from "../domain/todo";
+import { CompletedTodo } from "domain/todo";
 import { CompletedTodoTitle } from "./completed-todo-title";
 import { TodoActionsPanelBtnGroup } from "./todo-actions-panel-btn-group";
 import { TodoDeleteBtn } from "./todo-delete-btn";

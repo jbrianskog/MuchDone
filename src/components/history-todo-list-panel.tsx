@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CompletedTodo, Todo } from "../domain/todo";
+import { CompletedTodo, Todo } from "domain/todo";
 import { HistoryCompletedTodoList } from "./history-completed-todo-list";
 import { HistoryTodoList } from "./history-todo-list";
 

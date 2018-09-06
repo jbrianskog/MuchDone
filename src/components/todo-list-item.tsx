@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Todo, TodoIdType } from "../domain/todo";
+import { Todo, TodoIdType } from "domain/todo";
 import { TodoActionsPanel } from "./todo-actions-panel";
 import { TodoPanel } from "./todo-panel";
 import { TodoRenamePanel } from "./todo-rename-panel";

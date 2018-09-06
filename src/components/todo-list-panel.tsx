@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CompletedTodo, Todo, TodoIdType } from "../domain/todo";
+import { CompletedTodo, Todo, TodoIdType } from "domain/todo";
 import { CompletedTodoList } from "./completed-todo-list";
 import { TodoAddForm } from "./todo-add-form";
 import { TodoList } from "./todo-list";

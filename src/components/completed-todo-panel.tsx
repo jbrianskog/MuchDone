@@ -1,6 +1,6 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
-import { CompletedTodo } from "../domain/todo";
+import { CompletedTodo } from "domain/todo";
 import { CompletedTodoTitle } from "./completed-todo-title";
 import { TodoPanelBtnGroup } from "./todo-panel-btn-group";
 
