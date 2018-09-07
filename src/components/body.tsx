@@ -2,20 +2,21 @@ import * as React from "react";
 import { v4 as uuid } from "uuid";
 import { TodoIdType } from "domain/todo";
 import { TodoList } from "domain/todo-list";
-import { AggregateIdType, DomainEvent, domainEventsByAggregate, postDomainEvents } from "event-store";
-import { todoListEvents } from "data";
+import { Event } from "data/event-store";
+import { todoListEvents, addEvents } from "data";
 import { EventList } from "./event-list";
 import { EventListEmpty } from "./event-list-empty";
 import { HistoryTodoListPanel } from "./history-todo-list-panel";
 import { TodoListPanel } from "./todo-list-panel";
+import { DomainEventTypeName } from "domain/events";
 
 export interface BodyProps {
-  todoListId: AggregateIdType | null;
+  todoListId: string | null;
 }
 
 interface BodyState {
-  todoListId: AggregateIdType | null;
-  events: DomainEvent[];
+  todoListId: string | null;
+  events: Event<DomainEventTypeName>[];
   history: boolean;
   historyVersion: number;
 }
@@ -33,21 +34,21 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
 
   componentDidMount(): void {
     if (this.state.todoListId) {
-      domainEventsByAggregate(this.state.todoListId)
+      todoListEvents(this.state.todoListId)
         .then(events => { this.setState({ events }); })
         .catch(console.log);
     }
   }
   updateDomainTodoList = async (command: (todoList: TodoList) => void): Promise<void> => {
     let events = (this.state.todoListId)
-      ? await domainEventsByAggregate(this.state.todoListId)
-      : await todoListEvents();
+      ? await todoListEvents(this.state.todoListId)
+      : [];
     let todoList = new TodoList(events);
     command(todoList);
-    await postDomainEvents(todoList.uncommittedEvents);
+    await addEvents(todoList.uncommittedEvents);
     this.setState({
       todoListId: todoList.id,
-      events: await domainEventsByAggregate(todoList.id),
+      events: await todoListEvents(todoList.id),
     });
   }
   addTodo = (name: string) => {
@@ -82,7 +83,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
     this.setState({ history: true, historyVersion: version });
   }
   showCurrentVersion = () => {
-    domainEventsByAggregate(this.state.todoListId as string)
+    todoListEvents(this.state.todoListId as string)
       .then(events => { this.setState({ events, history: false, historyVersion: 0 }); })
       .catch(console.log);
   }

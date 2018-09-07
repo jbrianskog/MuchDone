@@ -1,8 +1,9 @@
 import * as React from "react";
-import { DomainEvent, DomainEventType } from "event-store";
+import { Event } from "data/event-store";
+import { DomainEventTypeName } from "domain/events";
 
 export interface EventListItemProps {
-  event: DomainEvent;
+  event: Event<DomainEventTypeName>;
   showHistoryVersion(version: number): void;
 }
 
@@ -12,7 +13,7 @@ export class EventListItem extends React.PureComponent<EventListItemProps> {
   }
   render() {
     return (
-      <button onClick={this.showHistory} className="list-group-item event-list-item">{this.props.event.id} : {DomainEventType[this.props.event.type]}</button>
+      <button onClick={this.showHistory} className="list-group-item event-list-item">{this.props.event.id} : {DomainEventTypeName[this.props.event.type]}</button>
     );
   }
 }
