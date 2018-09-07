@@ -12,6 +12,29 @@ export interface TodoListProps {
 }
 
 export class TodoList extends React.PureComponent<TodoListProps> {
+  movedTodoListItemRef!: React.RefObject<HTMLDivElement> | null;
+  movedTodoListItemOffsetTop!: number | null;
+  moveTodoUp = (id: TodoIdType, listItemRef: React.RefObject<HTMLDivElement>) => {
+    this.setMovedTodoRef(listItemRef);
+    this.props.moveTodoUp(id);
+  }
+  moveTodoDown = (id: TodoIdType, listItemRef: React.RefObject<HTMLDivElement>) => {
+    this.setMovedTodoRef(listItemRef);
+    this.props.moveTodoDown(id);
+  }
+  setMovedTodoRef = (listItemRef: React.RefObject<HTMLDivElement>) => {
+    this.movedTodoListItemOffsetTop = (listItemRef.current as HTMLDivElement).offsetTop;
+    this.movedTodoListItemRef = listItemRef;
+  }
+  componentDidUpdate() {
+    if (this.movedTodoListItemRef) {
+      window.scrollBy({
+        top: (this.movedTodoListItemRef.current as HTMLDivElement).offsetTop - (this.movedTodoListItemOffsetTop as number),
+        behavior: "instant",
+      });
+      this.movedTodoListItemRef = null;
+    }
+  }
   render() {
     return (
       <div className="list-group">
@@ -21,8 +44,8 @@ export class TodoList extends React.PureComponent<TodoListProps> {
             todo={todo}
             completeTodo={this.props.completeTodo}
             deleteTodo={this.props.deleteTodo}
-            moveTodoUp={this.props.moveTodoUp}
-            moveTodoDown={this.props.moveTodoDown}
+            moveTodoUp={this.moveTodoUp}
+            moveTodoDown={this.moveTodoDown}
             renameTodo={this.props.renameTodo}
           />)}
       </div>

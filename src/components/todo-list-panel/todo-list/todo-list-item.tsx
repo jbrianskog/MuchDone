@@ -8,8 +8,8 @@ export interface TodoListItemProps {
   todo: Todo;
   completeTodo(id: TodoIdType): void;
   deleteTodo(id: TodoIdType): void;
-  moveTodoUp(id: TodoIdType): void;
-  moveTodoDown(id: TodoIdType): void;
+  moveTodoUp(id: TodoIdType, listItemRef: React.RefObject<HTMLDivElement>): void;
+  moveTodoDown(id: TodoIdType, listItemRef: React.RefObject<HTMLDivElement>): void;
   renameTodo(id: TodoIdType, name: string): void;
 }
 
@@ -36,11 +36,11 @@ export class TodoListItem extends React.PureComponent<TodoListItemProps, TodoLis
   deleteTodo = () => {
     this.props.deleteTodo(this.props.todo.id);
   }
-  moveTodoUp = () => {
-    this.props.moveTodoUp(this.props.todo.id);
+  moveTodoUp = (listItemRef: React.RefObject<HTMLDivElement>) => {
+    this.props.moveTodoUp(this.props.todo.id, listItemRef);
   }
-  moveTodoDown = () => {
-    this.props.moveTodoDown(this.props.todo.id);
+  moveTodoDown = (listItemRef: React.RefObject<HTMLDivElement>) => {
+    this.props.moveTodoDown(this.props.todo.id, listItemRef);
   }
   renameTodo = (name: string) => {
     this.props.renameTodo(this.props.todo.id, name);
