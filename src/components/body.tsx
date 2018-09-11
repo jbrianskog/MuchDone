@@ -9,13 +9,17 @@ import { EventListEmpty } from "./event-list-empty";
 import { HistoryTodoListPanel } from "./history-todo-list-panel";
 import { TodoListPanel } from "./todo-list-panel";
 import { DomainEventTypeName } from "domain/events";
+import { LoginBtn } from "./login-btn";
 
 export interface BodyProps {
   todoListId: string | null;
+  isAuthenticated: boolean;
+  updateTodoListId(id: string | null): void;
+  login(): void;
+  logout(): void;
 }
 
 interface BodyState {
-  todoListId: string | null;
   events: Event<DomainEventTypeName>[];
   history: boolean;
   historyVersion: number;
@@ -25,31 +29,41 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
   constructor(props: BodyProps) {
     super(props);
     this.state = {
-      todoListId: props.todoListId,
       events: [],
       history: false,
       historyVersion: 0,
     };
   }
-
   componentDidMount(): void {
-    if (this.state.todoListId) {
-      todoListEvents(this.state.todoListId)
+    if (this.props.todoListId) {
+      todoListEvents(this.props.todoListId)
         .then(events => { this.setState({ events }); })
         .catch(console.log);
     }
   }
+  componentDidUpdate(prevProps: BodyProps) {
+    if (this.props.todoListId !== prevProps.todoListId) {
+      if (!this.props.todoListId) {
+        this.setState({ events: [] });
+      } else {
+        todoListEvents(this.props.todoListId)
+          .then(events => { this.setState({ events }); })
+          .catch(console.log);
+      }
+    }
+  }
   updateDomainTodoList = async (command: (todoList: TodoList) => void): Promise<void> => {
-    let events = (this.state.todoListId)
-      ? await todoListEvents(this.state.todoListId)
+    let events = (this.props.todoListId)
+      ? await todoListEvents(this.props.todoListId)
       : [];
     let todoList = new TodoList(events);
     command(todoList);
     await addEvents(todoList.uncommittedEvents);
-    this.setState({
-      todoListId: todoList.id,
-      events: await todoListEvents(todoList.id),
-    });
+    if (!this.props.todoListId) {
+      this.props.updateTodoListId(todoList.id);
+    } else {
+      this.setState({events: await todoListEvents(todoList.id)});
+    }
   }
   addTodo = (name: string) => {
     this.updateDomainTodoList(list => { list.add(uuid(), name); })
@@ -83,7 +97,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
     this.setState({ history: true, historyVersion: version });
   }
   showCurrentVersion = () => {
-    todoListEvents(this.state.todoListId as string)
+    todoListEvents(this.props.todoListId as string)
       .then(events => { this.setState({ events, history: false, historyVersion: 0 }); })
       .catch(console.log);
   }
@@ -96,6 +110,10 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
 
     return (
       <div className="container">
+        <LoginBtn 
+          isAuthenticated={this.props.isAuthenticated} 
+          login={this.props.login}
+          logout={this.props.logout} />
         <div className="row">
           <div className="col-sm-8">
             {this.state.history
@@ -128,7 +146,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
           </div>
         </div>
         <footer>
-          <p>&copy; 2017 - Jon Brian Skog</p>
+          <p>&copy; 2018 - Jon Brian Skog</p>
         </footer>
       </div>
     );

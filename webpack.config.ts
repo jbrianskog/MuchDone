@@ -33,7 +33,7 @@ module.exports = (env: any) : Configuration => {
 
   return {
     context: Path.resolve(__dirname, 'src'),
-    entry: "./app.tsx",
+    entry: "./index.tsx",
     output: (ENV_PRODUCTION)
     ? {
       path: Path.resolve(__dirname, "docs"),
