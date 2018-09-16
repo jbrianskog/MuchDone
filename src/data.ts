@@ -1,11 +1,11 @@
-import { Event, EventStore } from "data/event-store";
-import { DomainEventTypeName, UncommittedDomainEvent } from "domain/events";
+import { EventStore } from "data/event-store";
+import { DomainEventTypeName, DomainEvent } from "domain/events";
 import { IndexedDBEventStore } from "data/indexeddb-event-store";
 
 const db: EventStore<DomainEventTypeName> = new IndexedDBEventStore("much-done", "event");
 
-export async function todoListEvents(aggregateId: string): Promise<Event<DomainEventTypeName>[]> {
-    return await db.getEventsByAggregate(aggregateId);
+export async function todoListEvents(aggregateId: string): Promise<DomainEvent[]> {
+    return db.getEventsByAggregate(aggregateId);
 }
 
 export async function todoListId(): Promise<string | null> {
@@ -20,7 +20,7 @@ export async function todoListId(): Promise<string | null> {
         : null;
 }
 
-function todoListIds(events: Event<DomainEventTypeName>[]): string[] {
+function todoListIds(events: DomainEvent[]): string[] {
     return events.reduce<string[]>((p, c) => {
         if (c.type === DomainEventTypeName.TodoAdded && p.indexOf(c.aggregateId) === -1) {
             p.push(c.aggregateId);
@@ -29,6 +29,6 @@ function todoListIds(events: Event<DomainEventTypeName>[]): string[] {
     }, []);
 }
 
-export async function addEvents(events: UncommittedDomainEvent[]): Promise<void> {
-    return await db.addEvents(events);
+export async function addEvents(events: DomainEvent[]): Promise<void> {
+    return db.addEvents(events);
 }

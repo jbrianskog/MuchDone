@@ -1,19 +1,18 @@
 import * as React from "react";
-import { Event } from "data/event-store";
-import { DomainEventTypeName } from "domain/events";
+import { DomainEventTypeName, DomainEvent } from "domain/events";
 
 export interface EventListItemProps {
-  event: Event<DomainEventTypeName>;
+  event: DomainEvent;
   showHistoryVersion(version: number): void;
 }
 
 export class EventListItem extends React.PureComponent<EventListItemProps> {
   showHistory: React.MouseEventHandler<HTMLButtonElement> = e => {
-    this.props.showHistoryVersion(this.props.event.id);
+    this.props.showHistoryVersion(this.props.event.version);
   }
   render() {
     return (
-      <button onClick={this.showHistory} className="list-group-item event-list-item">{this.props.event.id} : {DomainEventTypeName[this.props.event.type]}</button>
+      <button onClick={this.showHistory} className="list-group-item event-list-item">{this.props.event.version} : {DomainEventTypeName[this.props.event.type]}</button>
     );
   }
 }

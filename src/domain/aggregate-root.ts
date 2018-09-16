@@ -1,11 +1,11 @@
-import { DomainEventTypeName, UncommittedDomainEvent } from "./events";
+import { DomainEventTypeName, DomainEvent } from "./events";
 
-export type DomainEventHandler = (e: UncommittedDomainEvent) => void;
+export type DomainEventHandler = (e: DomainEvent) => void;
 
 export abstract class AggregateRoot {
     [key: string]: any;
-    private _uncommittedEvents!: UncommittedDomainEvent[];
-    get uncommittedEvents(): UncommittedDomainEvent[] {
+    private _uncommittedEvents!: DomainEvent[];
+    get uncommittedEvents(): DomainEvent[] {
         return this._uncommittedEvents;
     }
     protected _id!: string;
@@ -13,15 +13,15 @@ export abstract class AggregateRoot {
         return this._id;
     }
     protected init(): void {
-        this._uncommittedEvents = new Array<UncommittedDomainEvent>();
+        this._uncommittedEvents = new Array<DomainEvent>();
     }
-    constructor(events: UncommittedDomainEvent[]) {
+    constructor(events: DomainEvent[]) {
         this.init();
         for (const e of events) {
             (this[DomainEventTypeName[e.type]] as DomainEventHandler)(e);
         }
     }
-    protected applyAndStage(e: UncommittedDomainEvent): void {
+    protected applyAndStage(e: DomainEvent): void {
         (this[DomainEventTypeName[e.type]] as DomainEventHandler)(e);
         this._uncommittedEvents.push(e);
     }

@@ -1,11 +1,10 @@
 import * as React from "react";
 import OnClickOut, { InjectedOnClickOutProps } from "react-onclickoutside";
-import { Event } from "data/event-store";
 import { EventListItem } from "./event-list/event-list-item";
-import { DomainEventTypeName } from "domain/events";
+import { DomainEvent } from "domain/events";
 
 export interface EventListProps {
-  events: Event<DomainEventTypeName>[];
+  events: DomainEvent[];
   showHistoryVersion(version: number): void;
   showCurrentVersion(): void;
 }
