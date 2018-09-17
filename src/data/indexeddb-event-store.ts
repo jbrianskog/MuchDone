@@ -48,6 +48,9 @@ export class IndexedDBEventStore<T> implements EventStore<T> {
     await tx.complete;
     return events;
   }
+  onAggregateEventsUpdated(aggregateId: string, callback: (events: ESEvent<T>[], off: () => void) => any): () => void {
+    throw "onAggregateEventsUpdated not implemented";
+  }
   async addEvents(events: ESEvent<T>[]): Promise<void> {
     let db = await this.open();
     let tx = db.transaction(this.storeName, "readwrite");

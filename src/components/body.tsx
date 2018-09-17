@@ -9,7 +9,6 @@ import { DomainEvent } from "domain/events";
 import { LoginBtn } from "./login-btn";
 
 export interface BodyProps {
-  todoListId: string | null;
   events: DomainEvent[];
   isAuthenticated: boolean;
   login(): void;

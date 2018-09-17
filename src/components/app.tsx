@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as firebase from "firebase";
 import { v4 as uuid } from "uuid";
-import { todoListId, todoListEvents, addEvents } from "data";
+import { todoListId, addEvents, onTodoListUpdated } from "data";
 import { TodoList } from "domain/todo-list";
 import { DomainEvent } from "domain/events";
 import { Body } from "./body";
@@ -14,7 +14,8 @@ interface AppState {
 }
 
 export class App extends React.PureComponent<{}, AppState> {
-  authStateUnsub: firebase.Unsubscribe | null = null;
+  offAuthStateChanged: firebase.Unsubscribe | null = null;
+  offTodoListUpdated: (() => void) | null = null;
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -24,14 +25,14 @@ export class App extends React.PureComponent<{}, AppState> {
     };
   }
   componentDidMount() {
-    this.authStateUnsub = firebase.auth().onAuthStateChanged(user => {
+    this.offAuthStateChanged = firebase.auth().onAuthStateChanged(user => {
       console.log("onAuthStateChanged");
       console.log(user);
       todoListId()
         .then(id => {
           if (id) {
-            return todoListEvents(id)
-              .then(events => this.setState({ isAuthenticated: !!user, todoListId: id, todoListEvents: events }));
+            this.setState({ isAuthenticated: !!user, todoListId: id });
+            this.offTodoListUpdated = onTodoListUpdated(id, events => this.setState({ todoListEvents: events }));
           } else {
             this.setState({ isAuthenticated: !!user, todoListId: null, todoListEvents: [] })
           }
@@ -40,7 +41,8 @@ export class App extends React.PureComponent<{}, AppState> {
     })
   }
   componentWillUnmount() {
-    this.authStateUnsub && this.authStateUnsub();
+    this.offAuthStateChanged && this.offAuthStateChanged();
+    this.offTodoListUpdated && this.offTodoListUpdated();
   }
   login = () => {
     firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
@@ -50,52 +52,50 @@ export class App extends React.PureComponent<{}, AppState> {
     firebase.auth().signOut()
       .catch(console.log);
   };
-  updateDomainTodoList = async (command: (todoList: TodoList) => void): Promise<void> => {
-    let events = (this.state.todoListId)
-      ? await todoListEvents(this.state.todoListId)
-      : [];
-    let todoList = new TodoList(events);
+  commandDomainTodoList = async (command: (todoList: TodoList) => void): Promise<void> => {
+    let todoList = new TodoList(this.state.todoListEvents);
     command(todoList);
     if (todoList.uncommittedEvents.length) {
       await addEvents(todoList.uncommittedEvents);
-      this.setState({
-        todoListId: todoList.id,
-        todoListEvents: await todoListEvents(todoList.id)
-      });
+      if (!this.state.todoListId && todoList.id) {
+        this.setState({
+          todoListId: todoList.id
+        });
+        this.offTodoListUpdated = onTodoListUpdated(todoList.id, events => this.setState({ todoListEvents: events }));
+      }
     }
   }
   addTodo = (name: string) => {
-    this.updateDomainTodoList(list => { list.add(uuid(), name); })
+    this.commandDomainTodoList(list => { list.add(uuid(), name); })
       .catch(console.log);
   }
   completeTodo = (id: TodoIdType) => {
-    this.updateDomainTodoList(list => { list.complete(id, Date.now()); })
+    this.commandDomainTodoList(list => { list.complete(id, Date.now()); })
       .catch(console.log);
   }
   uncompleteTodo = (id: TodoIdType) => {
-    this.updateDomainTodoList(list => { list.uncomplete(id); })
+    this.commandDomainTodoList(list => { list.uncomplete(id); })
       .catch(console.log);
   }
   deleteTodo = (id: TodoIdType) => {
-    this.updateDomainTodoList(list => { list.remove(id); })
+    this.commandDomainTodoList(list => { list.remove(id); })
       .catch(console.log);
   }
   moveTodoUp = (id: TodoIdType) => {
-    this.updateDomainTodoList(list => { list.changePosition(id, -1); })
+    this.commandDomainTodoList(list => { list.changePosition(id, -1); })
       .catch(console.log);
   }
   moveTodoDown = (id: TodoIdType) => {
-    this.updateDomainTodoList(list => { list.changePosition(id, 1); })
+    this.commandDomainTodoList(list => { list.changePosition(id, 1); })
       .catch(console.log);
   }
   renameTodo = (id: TodoIdType, name: string) => {
-    this.updateDomainTodoList(list => { list.rename(id, name); })
+    this.commandDomainTodoList(list => { list.rename(id, name); })
       .catch(console.log);
   }
   render() {
     return (
       <Body
-        todoListId={this.state.todoListId}
         events={this.state.todoListEvents}
         isAuthenticated={this.state.isAuthenticated}
         login={this.login}

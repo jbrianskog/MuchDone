@@ -13,9 +13,9 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
     if (version) {
       query = query.endAt(version);
     }
-    let snapshot = await query.once("value");
-    snapshot.forEach(childSnapshot => {
-      events.push(childSnapshot.val())
+    let snap = await query.once("value");
+    snap.forEach(childSnap => {
+      events.push(childSnap.val())
     });
     return events;
   }
@@ -26,6 +26,28 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   async getEventsByAggregate(aggregateId: string, version?: number): Promise<ESEvent<T>[]> {
     let events = await this.getEvents(`aggregateEvents/${aggregateId}`, version);
     return events;
+  }
+  onAggregateEventsUpdated(aggregateId: string, callback: (events: ESEvent<T>[], off: () => void) => any): () => void {
+    let user = firebase.auth().currentUser;
+    if (!user) {
+      console.log("onAggregateEventsUpdated() error. User not logged into Firebase.");
+      return () => null;
+    }
+    let ref = firebase.database().ref(`/users/${user.uid}/aggregateEvents/${aggregateId}`).orderByChild("version");
+    let onCallback = ref.on("value", snap => {
+      let events = [] as ESEvent<T>[];
+      if (snap) {
+        snap.forEach(childSnap => {
+          events.push(childSnap.val())
+        });
+      }
+      callback(events, off);
+    });
+    let off = () => {
+      // @ts-ignore: The type mismatch for this callback param is Firebase's problem.
+      ref.off("value", onCallback)
+    };
+    return off;
   }
   async addEvents(events: ESEvent<T>[]): Promise<void> {
     let user = firebase.auth().currentUser;
