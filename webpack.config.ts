@@ -69,7 +69,8 @@ module.exports = (env: any) : Configuration => {
     plugins: plugins,
     externals: {
       "react": "React",
-      "react-dom": "ReactDOM"
+      "react-dom": "ReactDOM",
+      "firebase" : "firebase",
     },
   }
 };

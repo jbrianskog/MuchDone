@@ -14,6 +14,7 @@ interface AppState {
 }
 
 export class App extends React.PureComponent<{}, AppState> {
+  authStateUnsub: firebase.Unsubscribe | null = null;
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -23,17 +24,32 @@ export class App extends React.PureComponent<{}, AppState> {
     };
   }
   componentDidMount() {
-    todoListId()
-      .then(id => {
-        if (id) {
-          return todoListEvents(id)
-            .then(events => this.setState({ todoListId: id, todoListEvents: events }));
-        }
-      })
-      .catch(console.log);
+    this.authStateUnsub = firebase.auth().onAuthStateChanged(user => {
+      console.log("onAuthStateChanged");
+      console.log(user);
+      todoListId()
+        .then(id => {
+          if (id) {
+            return todoListEvents(id)
+              .then(events => this.setState({ isAuthenticated: !!user, todoListId: id, todoListEvents: events }));
+          } else {
+            this.setState({ isAuthenticated: !!user, todoListId: null, todoListEvents: [] })
+          }
+        })
+        .catch(console.log);
+    })
   }
-  login = () => this.setState({ isAuthenticated: true });
-  logout = () => this.setState({ isAuthenticated: false });
+  componentWillUnmount() {
+    this.authStateUnsub && this.authStateUnsub();
+  }
+  login = () => {
+    firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .catch(console.log);
+  };
+  logout = () => {
+    firebase.auth().signOut()
+      .catch(console.log);
+  };
   updateDomainTodoList = async (command: (todoList: TodoList) => void): Promise<void> => {
     let events = (this.state.todoListId)
       ? await todoListEvents(this.state.todoListId)
