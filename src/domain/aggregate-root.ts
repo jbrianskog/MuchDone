@@ -3,17 +3,17 @@ import { DomainEventTypeName, DomainEvent, UncommittedDomainEvent } from "./even
 export type DomainEventHandler = (e: UncommittedDomainEvent) => void;
 
 export abstract class AggregateRoot {
-  [key: string]: any;
+  //[key: string]: any;
   private _uncommittedEvents!: UncommittedDomainEvent[];
   get uncommittedEvents(): UncommittedDomainEvent[] {
     return this._uncommittedEvents;
   }
-  protected _id!: string;
-  get id(): string {
+  protected _id!: string | null;
+  get id(): string | null {
     return this._id;
   }
   protected init(): void {
-    this._uncommittedEvents = new Array<DomainEvent>();
+    this._uncommittedEvents = [];
   }
   constructor(events: DomainEvent[]) {
     this.init();
@@ -22,6 +22,7 @@ export abstract class AggregateRoot {
     }
   }
   private apply(e: UncommittedDomainEvent): void {
+    // @ts-ignore
     let handler = this[DomainEventTypeName[e.type]];
     if (handler) {
       (handler as DomainEventHandler).bind(this)(e);
