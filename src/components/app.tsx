@@ -1,11 +1,13 @@
 import * as React from "react";
 import * as firebase from "firebase";
 import { v4 as uuid } from "uuid";
-import { todoListId, addEvents, onTodoListUpdated } from "data";
+import { addEvents, onTodoListUpdated, onTodoListsUpdated } from "data";
 import { TodoList } from "domain/todo-list";
 import { DomainEvent } from "domain/events";
 import { Body } from "./body";
 import { TodoIdType } from "domain/todo";
+import { Unsub } from "data/event-store";
+import { TodoLists } from "domain/todo-lists";
 
 interface AppState {
   todoListId: string | null;
@@ -15,7 +17,8 @@ interface AppState {
 
 export class App extends React.PureComponent<{}, AppState> {
   offAuthStateChanged: firebase.Unsubscribe | null = null;
-  offTodoListUpdated: (() => void) | null = null;
+  offTodoListUpdated: Unsub | null = null;
+  offTodoListsUpdated: Unsub | null = null;
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -28,21 +31,38 @@ export class App extends React.PureComponent<{}, AppState> {
     this.offAuthStateChanged = firebase.auth().onAuthStateChanged(user => {
       console.log("onAuthStateChanged");
       console.log(user);
-      todoListId()
-        .then(id => {
-          if (id) {
-            this.setState({ isAuthenticated: !!user, todoListId: id });
-            this.offTodoListUpdated = onTodoListUpdated(id, events => this.setState({ todoListEvents: events }));
-          } else {
-            this.setState({ isAuthenticated: !!user, todoListId: null, todoListEvents: [] })
-          }
-        })
-        .catch(console.log);
+      if (user) {
+        // login
+        this.setState({ isAuthenticated: true });
+        this.offTodoListsUpdated = onTodoListsUpdated(events => {
+          let lists = new TodoLists(events);
+          if (!this.state.todoListId && lists.ids.length) {
+            // The client had no TodoList and one was created.
+            this.setState({ todoListId: lists.ids[0] })
+            this.offTodoListUpdated = onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
+          } else if (this.state.todoListId && !lists.ids.length) {
+            // The client had a TodoList but the default TodoList was deleted.
+            this.offTodoListUpdated && this.offTodoListUpdated();
+            this.setState({ todoListId: null, todoListEvents: [] })
+          } else if (this.state.todoListId && lists.ids.length && this.state.todoListId !== lists.ids[0]){
+            // The client had a TodoList but a different TodoList was made the default.
+            this.offTodoListUpdated && this.offTodoListUpdated();
+            this.setState({ todoListId: lists.ids[0] })
+            this.offTodoListUpdated = onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
+          } 
+        });
+      } else {
+        // logout
+        this.offTodoListUpdated && this.offTodoListUpdated();
+        this.offTodoListsUpdated && this.offTodoListsUpdated();
+        this.setState({ isAuthenticated: false, todoListId: null, todoListEvents: [] })
+      }
     })
   }
   componentWillUnmount() {
     this.offAuthStateChanged && this.offAuthStateChanged();
     this.offTodoListUpdated && this.offTodoListUpdated();
+    this.offTodoListsUpdated && this.offTodoListsUpdated();
   }
   login = () => {
     firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())

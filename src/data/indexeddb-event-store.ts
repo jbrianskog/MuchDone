@@ -1,5 +1,5 @@
 import idb, { Cursor, DB } from "idb";
-import { ESEvent, EventStore } from "./event-store";
+import { ESEvent, EventStore, SubCallback, Unsub } from "./event-store";
 
 const eventIdPropName = "id";
 const versionPropName = "version";
@@ -48,8 +48,14 @@ export class IndexedDBEventStore<T> implements EventStore<T> {
     await tx.complete;
     return events;
   }
-  onAggregateEventsUpdated(aggregateId: string, callback: (events: ESEvent<T>[], off: () => void) => any): () => void {
+  async getEventsByType(typeId: T, version?: number): Promise<ESEvent<T>[]> {
+    throw "getEventsByType not implemented";
+  }
+  onEventsByAggregateUpdated(aggregateId: string, callback: SubCallback<T>): Unsub {
     throw "onAggregateEventsUpdated not implemented";
+  }
+  onEventsByTypeUpdated(typeId: T, callback: SubCallback<T>): Unsub {
+    throw "onEventsByTypeUpdated not implemented";
   }
   async addEvents(events: ESEvent<T>[]): Promise<void> {
     let db = await this.open();

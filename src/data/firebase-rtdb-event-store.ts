@@ -1,5 +1,5 @@
 import * as firebase from "firebase";
-import { ESEvent, EventStore, UncommittedESEvent } from "./event-store";
+import { ESEvent, EventStore, UncommittedESEvent, SubCallback, Unsub } from "./event-store";
 
 export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   // private isOrderedByVersion(events: ESEvent<T>[]) {
@@ -42,17 +42,17 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
     let events = await this.getEvents(`eventsByAggregate/${aggregateId}`, version);
     return events;
   }
-  async getEventsByType(type: T, version?: number): Promise<ESEvent<T>[]> {
-    let events = await this.getEvents(`eventsByType/${type}`, version);
+  async getEventsByType(typeId: T, version?: number): Promise<ESEvent<T>[]> {
+    let events = await this.getEvents(`eventsByType/${typeId}`, version);
     return events;
   }
-  onAggregateEventsUpdated(aggregateId: string, callback: (events: ESEvent<T>[], off: () => void) => any): () => void {
+  protected onEventsUpdated(path: string, callback: SubCallback<T>): Unsub {
     let user = firebase.auth().currentUser;
     if (!user) {
-      console.log("onAggregateEventsUpdated() error. User not logged into Firebase.");
+      console.log("onEventsUpdated() error. User not logged into Firebase.");
       return () => null;
     }
-    let ref = firebase.database().ref(`/users/${user.uid}/eventsByAggregate/${aggregateId}`);
+    let ref = firebase.database().ref(`/users/${user.uid}/${path}`);
     let onCallback = ref.on("value", snap => {
       let events = [] as ESEvent<T>[];
       if (snap) {
@@ -67,6 +67,12 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
       ref.off("value", onCallback)
     };
     return off;
+  }
+  onEventsByAggregateUpdated(aggregateId: string, callback: SubCallback<T>): Unsub {
+    return this.onEventsUpdated(`eventsByAggregate/${aggregateId}`, callback);
+  }
+  onEventsByTypeUpdated(typeId: T, callback: SubCallback<T>): Unsub {
+    return this.onEventsUpdated(`eventsByType/${typeId}`, callback);
   }
   async addEvents(events: UncommittedESEvent<T>[]): Promise<void> {
     let user = firebase.auth().currentUser;

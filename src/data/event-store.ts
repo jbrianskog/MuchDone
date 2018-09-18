@@ -6,10 +6,13 @@ export interface UncommittedESEvent<T> {
 export interface ESEvent<T> extends UncommittedESEvent<T> {
   readonly version: number;
 }
+export type SubCallback<T> = (events: ESEvent<T>[], off: () => void) => any;
+export type Unsub = () => void;
 export interface EventStore<T> {
   getAllEvents(version?: number): Promise<ESEvent<T>[]>;
   getEventsByAggregate(aggregateId: string, version?: number): Promise<ESEvent<T>[]>;
-  getEventsByType(type: T, version?: number): Promise<ESEvent<T>[]>;
-  onAggregateEventsUpdated(aggregateId: string, callback: (events: ESEvent<T>[], off: () => void) => any): () => void;
+  getEventsByType(typeId: T, version?: number): Promise<ESEvent<T>[]>;
+  onEventsByAggregateUpdated(aggregateId: string, callback: SubCallback<T>): Unsub;
+  onEventsByTypeUpdated(typeId: T, callback: SubCallback<T>): Unsub;
   addEvents(events: UncommittedESEvent<T>[]): Promise<void>;
 }
