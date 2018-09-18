@@ -1,7 +1,22 @@
 import * as firebase from "firebase";
-import { ESEvent, EventStore } from "./event-store";
+import { ESEvent, EventStore, UncommittedESEvent } from "./event-store";
 
 export class FirebaseRTDBEventStore<T> implements EventStore<T> {
+  // private isOrderedByVersion(events: ESEvent<T>[]) {
+  //   let isOrdered = true;
+  //   let prev = 0;
+  //   for (const event of events) {
+  //     if (event.version < prev)
+  //     {
+  //       isOrdered = false;
+  //       console.log("NOT ordered by version", event);
+  //     }
+  //     prev = event.version;
+  //   }
+  //   if (isOrdered) {
+  //     console.log("IS ordered by version");
+  //   }
+  // }
   protected async getEvents(path: string, version?: number): Promise<ESEvent<T>[]> {
     let user = firebase.auth().currentUser;
     if (!user) {
@@ -9,11 +24,11 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
       return [];
     }
     let events = [] as ESEvent<T>[];
-    let query = firebase.database().ref(`/users/${user.uid}/${path}`).orderByChild("version");
+    let ref: firebase.database.Reference | firebase.database.Query = firebase.database().ref(`/users/${user.uid}/${path}`);
     if (version) {
-      query = query.endAt(version);
+      ref = ref.orderByChild("version").endAt(version);
     }
-    let snap = await query.once("value");
+    let snap = await ref.once("value");
     snap.forEach(childSnap => {
       events.push(childSnap.val())
     });
@@ -24,7 +39,11 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
     return events;
   }
   async getEventsByAggregate(aggregateId: string, version?: number): Promise<ESEvent<T>[]> {
-    let events = await this.getEvents(`aggregateEvents/${aggregateId}`, version);
+    let events = await this.getEvents(`eventsByAggregate/${aggregateId}`, version);
+    return events;
+  }
+  async getEventsByType(type: T, version?: number): Promise<ESEvent<T>[]> {
+    let events = await this.getEvents(`eventsByType/${type}`, version);
     return events;
   }
   onAggregateEventsUpdated(aggregateId: string, callback: (events: ESEvent<T>[], off: () => void) => any): () => void {
@@ -33,7 +52,7 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
       console.log("onAggregateEventsUpdated() error. User not logged into Firebase.");
       return () => null;
     }
-    let ref = firebase.database().ref(`/users/${user.uid}/aggregateEvents/${aggregateId}`).orderByChild("version");
+    let ref = firebase.database().ref(`/users/${user.uid}/eventsByAggregate/${aggregateId}`);
     let onCallback = ref.on("value", snap => {
       let events = [] as ESEvent<T>[];
       if (snap) {
@@ -49,7 +68,7 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
     };
     return off;
   }
-  async addEvents(events: ESEvent<T>[]): Promise<void> {
+  async addEvents(events: UncommittedESEvent<T>[]): Promise<void> {
     let user = firebase.auth().currentUser;
     if (!user) {
       console.log("addEvents() error. User not logged into Firebase.");
@@ -60,8 +79,10 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
     for (const event of events) {
       let eventRef = userRef.child("/events").push();
       let key = eventRef.key;
+      (event as any).version = firebase.database.ServerValue.TIMESTAMP;
       updates[`/events/${key}`] = event;
-      updates[`/aggregateEvents/${event.aggregateId}/${key}`] = event;
+      updates[`/eventsByAggregate/${event.aggregateId}/${key}`] = event;
+      updates[`/eventsByType/${event.type}/${key}`] = event;
     }
     return userRef.update(updates);
   }

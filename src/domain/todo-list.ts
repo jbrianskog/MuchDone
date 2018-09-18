@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { AggregateRoot } from "./aggregate-root";
-import { TodoAdded, TodoCompleted, TodoPositionChanged, TodoRemoved, TodoRenamed, TodoUncompleted } from "./events";
+import { TodoAdded, TodoCompleted, TodoPositionChanged, TodoRemoved, TodoRenamed, TodoUncompleted, TodoListCreated } from "./events";
 import { CompletedTodo, Todo, TodoIdType } from "./todo";
 
 export class TodoList extends AggregateRoot {
@@ -89,8 +89,12 @@ export class TodoList extends AggregateRoot {
     }
 
     add(id: TodoIdType, name: string): void {
-        let agId = this.id || uuid();
-        this.applyAndStage(new TodoAdded(agId, id, name));
+      let agId: string = this.id;
+      if (!this.id) {
+        agId = uuid();
+        this.applyAndStage(new TodoListCreated(agId));
+      }
+      this.applyAndStage(new TodoAdded(agId, id, name));
     }
     remove(id: TodoIdType): void {
         this.applyAndStage(new TodoRemoved(this.id, id));

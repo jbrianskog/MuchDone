@@ -4,10 +4,12 @@
       "$uid": {
         "events": {
           ".read": "$uid === auth.uid",
-          ".indexOn": ["version"],
-          "$event_id" : {
+          ".indexOn": [
+            "version"
+          ],
+          "$event_id": {
             ".write": "$uid === auth.uid && !data.exists() && newData.exists()",
-            ".validate": "newData.hasChildren(['id', 'aggregateId', 'type', 'version']) && ((newData.child('type').val() === 0 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 1 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 2 && newData.hasChildren(['todoId', 'todoCompletionTimestamp'])) || (newData.child('type').val() === 3 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 4 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 5 && newData.hasChildren(['todoId', 'todoOffset'])))",
+            ".validate": "$event_id.length === 20 && newData.hasChildren(['id', 'aggregateId', 'type', 'version']) && (newData.child('type').val() === 0 || (newData.child('type').val() === 1 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 2 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 3 && newData.hasChildren(['todoId', 'todoCompletionTimestamp'])) || (newData.child('type').val() === 4 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 5 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 6 && newData.hasChildren(['todoId', 'todoOffset'])))",
             "id": {
               ".validate": "newData.isString() && newData.val().length === 36"
             },
@@ -32,17 +34,21 @@
             "todoOffset": {
               ".validate": "newData.isNumber()"
             },
-            "$other": { ".validate": false }
+            "$other": {
+              ".validate": false
+            }
           }
         },
-        "aggregateEvents" : {
+        "eventsByAggregate": {
           ".read": "$uid === auth.uid",
-          "$aggregate_id" : {
-            ".indexOn": ["version"],
+          "$aggregate_id": {
+            ".indexOn": [
+              "version"
+            ],
             ".validate": "$aggregate_id.length === 36",
-            "$event_id" : {
+            "$event_id": {
               ".write": "$uid === auth.uid && !data.exists() && newData.exists()",
-              ".validate": "newData.hasChildren(['id', 'aggregateId', 'type', 'version']) && ((newData.child('type').val() === 0 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 1 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 2 && newData.hasChildren(['todoId', 'todoCompletionTimestamp'])) || (newData.child('type').val() === 3 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 4 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 5 && newData.hasChildren(['todoId', 'todoOffset'])))",
+              ".validate": "$event_id.length === 20 && newData.hasChildren(['id', 'aggregateId', 'type', 'version']) && (newData.child('type').val() === 0 || (newData.child('type').val() === 1 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 2 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 3 && newData.hasChildren(['todoId', 'todoCompletionTimestamp'])) || (newData.child('type').val() === 4 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 5 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 6 && newData.hasChildren(['todoId', 'todoOffset'])))",
               "id": {
                 ".validate": "newData.isString() && newData.val().length === 36"
               },
@@ -67,11 +73,55 @@
               "todoOffset": {
                 ".validate": "newData.isNumber()"
               },
-              "$other": { ".validate": false }
+              "$other": {
+                ".validate": false
+              }
             }
           }
         },
-        "$other": { ".validate": false }
+        "eventsByType": {
+          ".read": "$uid === auth.uid",
+          "$type_id": {
+            ".indexOn": [
+              "version"
+            ],
+            ".validate": "$type_id === '0' || $type_id === '1' || $type_id === '2' || $type_id === '3' || $type_id === '4' || $type_id === '5' || $type_id === '6'",
+            "$event_id": {
+              ".write": "$uid === auth.uid && !data.exists() && newData.exists()",
+              ".validate": "$event_id.length === 20 && newData.hasChildren(['id', 'aggregateId', 'type', 'version']) && (newData.child('type').val() === 0 || (newData.child('type').val() === 1 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 2 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 3 && newData.hasChildren(['todoId', 'todoCompletionTimestamp'])) || (newData.child('type').val() === 4 && newData.hasChildren(['todoId'])) || (newData.child('type').val() === 5 && newData.hasChildren(['todoId', 'todoName'])) || (newData.child('type').val() === 6 && newData.hasChildren(['todoId', 'todoOffset'])))",
+              "id": {
+                ".validate": "newData.isString() && newData.val().length === 36"
+              },
+              "aggregateId": {
+                ".validate": "newData.isString() && newData.val().length === 36"
+              },
+              "type": {
+                ".validate": "newData.isNumber()"
+              },
+              "version": {
+                ".validate": "newData.isNumber()"
+              },
+              "todoId": {
+                ".validate": "newData.isString() && newData.val().length === 36"
+              },
+              "todoName": {
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 200"
+              },
+              "todoCompletionTimestamp": {
+                ".validate": "newData.isNumber()"
+              },
+              "todoOffset": {
+                ".validate": "newData.isNumber()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     }
   }

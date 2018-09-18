@@ -1,5 +1,5 @@
 import { EventStore } from "data/event-store";
-import { DomainEventTypeName, DomainEvent } from "domain/events";
+import { DomainEventTypeName, DomainEvent, UncommittedDomainEvent } from "domain/events";
 //import { IndexedDBEventStore } from "data/indexeddb-event-store";
 import { FirebaseRTDBEventStore } from "data/firebase-rtdb-event-store";
 
@@ -13,24 +13,11 @@ export function onTodoListUpdated(todoListId: string, callback: (events: DomainE
   return db.onAggregateEventsUpdated(todoListId, callback);
 }
 export async function todoListId(): Promise<string | null> {
-  // This app's domain and event-store are designed to accommodate multiple aggregates of different types.
-  // Currently, the app only has one aggregate type (TodoList) and only allows the user to have one instance of that aggregate.
-  // This method depends on that limitation. If multiple aggregates are implemented, this method will need
-  // some other way to get the default todoListId.
-  let events = await db.getAllEvents();
-  let lists = todoListIds(events);
-  return (lists.length)
-    ? lists[0]
+  let events = await db.getEventsByType(DomainEventTypeName.TodoListCreated)
+  return (events.length)
+    ? events[0].aggregateId
     : null;
 }
-function todoListIds(events: DomainEvent[]): string[] {
-  return events.reduce<string[]>((p, c) => {
-    if (c.type === DomainEventTypeName.TodoAdded && p.indexOf(c.aggregateId) === -1) {
-      p.push(c.aggregateId);
-    }
-    return p;
-  }, []);
-}
-export async function addEvents(events: DomainEvent[]): Promise<void> {
+export async function addEvents(events: UncommittedDomainEvent[]): Promise<void> {
   return db.addEvents(events);
 }
