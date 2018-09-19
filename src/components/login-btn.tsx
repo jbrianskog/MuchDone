@@ -27,13 +27,13 @@ export class LoginBtn extends React.PureComponent<LoginBtnProps, LoginBtnState> 
     return (
       <div className="navbar-right">
         {(this.props.isAuthenticated)
-          ? <button onClick={this.props.logout} type="button" className="btn btn-success navbar-btn">Sign out</button>
+          ? <button onClick={this.props.logout} type="button" className="btn btn-link navbar-btn">Sign out</button>
           : <>
               <label className="checkbox-inline navbar-text">
                 <input type="checkbox" checked={this.state.rememberMe} onChange={this.rememberMeChanged} />
                 Remember me
               </label>
-              <button onClick={this.loginClicked} type="button" className="btn btn-success navbar-btn">Sign in</button>
+              <button onClick={this.loginClicked} type="button" className="btn btn-success navbar-btn">Sign in with Google</button>
             </>
         }
       </div>
