@@ -51,6 +51,9 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
       <>
       <div className="navbar navbar-default navbar-static-top">
         <div className="container">
+          <div className="navbar-header">
+            <span className="navbar-brand"><span className="glyphicon glyphicon-check" aria-hidden="true"></span> MuchDone</span>
+          </div>
           <LoginBtn 
             isAuthenticated={this.props.isAuthenticated} 
             login={this.props.login}
