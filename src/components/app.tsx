@@ -64,8 +64,14 @@ export class App extends React.PureComponent<{}, AppState> {
     this.offTodoListUpdated && this.offTodoListUpdated();
     this.offTodoListsUpdated && this.offTodoListsUpdated();
   }
-  login = () => {
-    firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+  login = (rememberMe?: boolean) => {
+    let persistence = (rememberMe)
+      ? firebase.auth.Auth.Persistence.LOCAL
+      : firebase.auth.Auth.Persistence.SESSION;
+    firebase.auth().setPersistence(persistence)
+      .then(() => {
+        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      })
       .catch(console.log);
   };
   logout = () => {

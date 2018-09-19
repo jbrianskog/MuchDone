@@ -11,7 +11,7 @@ import { LoginBtn } from "./login-btn";
 export interface BodyProps {
   events: DomainEvent[];
   isAuthenticated: boolean;
-  login(): void;
+  login(rememberMe?: boolean): void;
   logout(): void;
   addTodo(name: string): void;
   completeTodo(id: TodoIdType): void;
@@ -48,11 +48,16 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
         : this.props.events
     );
     return (
+      <>
+      <div className="navbar navbar-default navbar-static-top">
+        <div className="container">
+          <LoginBtn 
+            isAuthenticated={this.props.isAuthenticated} 
+            login={this.props.login}
+            logout={this.props.logout} />
+        </div>
+      </div>
       <div className="container">
-        <LoginBtn 
-          isAuthenticated={this.props.isAuthenticated} 
-          login={this.props.login}
-          logout={this.props.logout} />
         <div className="row">
           <div className="col-sm-8">
             {this.state.history
@@ -74,7 +79,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
             }
           </div>
           <div className="col-sm-4">
-            <h3>Domain Events</h3>
+            <h4>Domain Events</h4>
             {this.props.events.length
               ? <EventList
                 disableOnClickOutside={!this.state.history}
@@ -88,6 +93,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
           <p>&copy; 2018 - Jon Brian Skog</p>
         </footer>
       </div>
+      </>
     );
   }
 }
