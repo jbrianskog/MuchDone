@@ -1,5 +1,5 @@
 import { EventStore, SubCallback, Unsub } from "data/event-store";
-import { DomainEventTypeName, DomainEvent, UncommittedDomainEvent } from "domain/events";
+import { DomainEventTypeName, UncommittedDomainEvent } from "domain/events";
 //import { IndexedDBEventStore } from "data/indexeddb-event-store";
 import { FirebaseRTDBEventStore } from "data/firebase-rtdb-event-store";
 

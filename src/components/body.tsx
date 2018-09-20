@@ -10,6 +10,7 @@ import { LoginBtn } from "./login-btn";
 
 export interface BodyProps {
   events: DomainEvent[];
+  authStateWasReceived: boolean;
   isAuthenticated: boolean;
   login(rememberMe?: boolean): void;
   logout(): void;
@@ -54,10 +55,13 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
           <div className="navbar-header">
             <span className="navbar-brand"><span className="glyphicon glyphicon-check" aria-hidden="true"></span> MuchDone</span>
           </div>
-          <LoginBtn 
-            isAuthenticated={this.props.isAuthenticated} 
-            login={this.props.login}
-            logout={this.props.logout} />
+          {this.props.authStateWasReceived
+            ? <LoginBtn 
+                isAuthenticated={this.props.isAuthenticated} 
+                login={this.props.login}
+                logout={this.props.logout} />
+            : null
+          }
         </div>
       </div>
       <div className="container">

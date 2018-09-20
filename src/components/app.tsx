@@ -13,6 +13,7 @@ interface AppState {
   todoListId: string | null;
   todoListEvents: DomainEvent[];
   isAuthenticated: boolean;
+  authStateWasReceived: boolean;
 }
 
 export class App extends React.PureComponent<{}, AppState> {
@@ -25,6 +26,7 @@ export class App extends React.PureComponent<{}, AppState> {
       todoListId: null,
       todoListEvents: [],
       isAuthenticated: false,
+      authStateWasReceived: false,
     };
   }
   componentDidMount() {
@@ -33,7 +35,7 @@ export class App extends React.PureComponent<{}, AppState> {
       console.log(user);
       if (user) {
         // login
-        this.setState({ isAuthenticated: true });
+        this.setState({ authStateWasReceived: true, isAuthenticated: true });
         this.offTodoListsUpdated = onTodoListsUpdated(events => {
           let lists = new TodoLists(events);
           if (!this.state.todoListId && lists.ids.length) {
@@ -55,7 +57,7 @@ export class App extends React.PureComponent<{}, AppState> {
         // logout
         this.offTodoListUpdated && this.offTodoListUpdated();
         this.offTodoListsUpdated && this.offTodoListsUpdated();
-        this.setState({ isAuthenticated: false, todoListId: null, todoListEvents: [] })
+        this.setState({ authStateWasReceived: true, isAuthenticated: false, todoListId: null, todoListEvents: [] })
       }
     })
   }
@@ -70,7 +72,7 @@ export class App extends React.PureComponent<{}, AppState> {
       : firebase.auth.Auth.Persistence.SESSION;
     firebase.auth().setPersistence(persistence)
       .then(() => {
-        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+        firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
       })
       .catch(console.log);
   };
@@ -123,6 +125,7 @@ export class App extends React.PureComponent<{}, AppState> {
     return (
       <Body
         events={this.state.todoListEvents}
+        authStateWasReceived={this.state.authStateWasReceived}
         isAuthenticated={this.state.isAuthenticated}
         login={this.login}
         logout={this.logout}
