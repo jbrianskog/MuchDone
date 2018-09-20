@@ -20,8 +20,7 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   protected async getEvents(path: string, version?: number): Promise<ESEvent<T>[]> {
     let user = firebase.auth().currentUser;
     if (!user) {
-      console.log("getEvents() error. User not logged into Firebase.");
-      return [];
+      throw new Error("getEvents(). User not logged into Firebase.");
     }
     let events = [] as ESEvent<T>[];
     let ref: firebase.database.Reference | firebase.database.Query = firebase.database().ref(`/users/${user.uid}/${path}`);
@@ -49,8 +48,7 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   protected onEventsUpdated(path: string, callback: SubCallback<T>): Unsub {
     let user = firebase.auth().currentUser;
     if (!user) {
-      console.log("onEventsUpdated() error. User not logged into Firebase.");
-      return () => null;
+      throw new Error("onEventsUpdated(). User not logged into Firebase.");
     }
     let ref = firebase.database().ref(`/users/${user.uid}/${path}`);
     let onCallback = ref.on("value", snap => {
@@ -77,8 +75,7 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   async addEvents(events: UncommittedESEvent<T>[]): Promise<void> {
     let user = firebase.auth().currentUser;
     if (!user) {
-      console.log("addEvents() error. User not logged into Firebase.");
-      return;
+      throw new Error("addEvents(). User not logged into Firebase.");
     }
     let userRef = firebase.database().ref(`/users/${user.uid}`);
     let updates: any = {};

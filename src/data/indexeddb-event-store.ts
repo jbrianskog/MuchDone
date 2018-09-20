@@ -49,13 +49,13 @@ export class IndexedDBEventStore<T> implements EventStore<T> {
     return events;
   }
   async getEventsByType(typeId: T, version?: number): Promise<ESEvent<T>[]> {
-    throw "getEventsByType not implemented";
+    throw new Error("getEventsByType not implemented");
   }
   onEventsByAggregateUpdated(aggregateId: string, callback: SubCallback<T>): Unsub {
-    throw "onAggregateEventsUpdated not implemented";
+    throw new Error("onAggregateEventsUpdated not implemented");
   }
   onEventsByTypeUpdated(typeId: T, callback: SubCallback<T>): Unsub {
-    throw "onEventsByTypeUpdated not implemented";
+    throw new Error("onEventsByTypeUpdated not implemented");
   }
   async addEvents(events: ESEvent<T>[]): Promise<void> {
     let db = await this.open();
