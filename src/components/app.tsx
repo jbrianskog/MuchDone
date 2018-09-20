@@ -1,14 +1,16 @@
 import * as React from "react";
 import * as firebase from "firebase";
 import { v4 as uuid } from "uuid";
-import { addEvents, onTodoListUpdated, onTodoListsUpdated } from "data";
+import { Data } from "data";
 import { updateUserProfile } from "data/firebase-rtdb"
 import { TodoList } from "domain/todo-list";
-import { DomainEvent } from "domain/events";
+import { DomainEvent, DomainEventTypeName } from "domain/events";
 import { Body } from "./body";
 import { TodoIdType } from "domain/todo";
 import { Unsub } from "data/event-store";
 import { TodoLists } from "domain/todo-lists";
+import { FirebaseRTDBEventStore } from "data/firebase-rtdb-event-store";
+import { IndexedDBEventStore } from "data/indexeddb-event-store";
 
 interface AppState {
   todoListId: string | null;
@@ -21,6 +23,7 @@ export class App extends React.PureComponent<{}, AppState> {
   offAuthStateChanged: firebase.Unsubscribe | null = null;
   offTodoListUpdated: Unsub | null = null;
   offTodoListsUpdated: Unsub | null = null;
+  data!: Data;
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -34,39 +37,44 @@ export class App extends React.PureComponent<{}, AppState> {
     this.offAuthStateChanged = firebase.auth().onAuthStateChanged(user => {
       console.log("onAuthStateChanged");
       console.log(user);
+      this.offTodoListUpdated && this.offTodoListUpdated();
+      this.offTodoListsUpdated && this.offTodoListsUpdated();
       if (user) {
         // login
+        this.setState({ authStateWasReceived: true, isAuthenticated: true, todoListId: null, todoListEvents: [] });
+        this.data = new Data(new FirebaseRTDBEventStore<DomainEventTypeName>());
         updateUserProfile().catch(console.log);
-        this.setState({ authStateWasReceived: true, isAuthenticated: true });
-        this.offTodoListsUpdated = onTodoListsUpdated(events => {
-          let lists = new TodoLists(events);
-          if (!this.state.todoListId && lists.ids.length) {
-            // The client had no TodoList and one was created.
-            this.setState({ todoListId: lists.ids[0] })
-            this.offTodoListUpdated = onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
-          } else if (this.state.todoListId && !lists.ids.length) {
-            // The client had a TodoList but the default TodoList was deleted.
-            this.offTodoListUpdated && this.offTodoListUpdated();
-            this.setState({ todoListId: null, todoListEvents: [] })
-          } else if (this.state.todoListId && lists.ids.length && this.state.todoListId !== lists.ids[0]){
-            // The client had a TodoList but a different TodoList was made the default.
-            this.offTodoListUpdated && this.offTodoListUpdated();
-            this.setState({ todoListId: lists.ids[0] })
-            this.offTodoListUpdated = onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
-          } 
-        });
       } else {
         // logout
-        this.offTodoListUpdated && this.offTodoListUpdated();
-        this.offTodoListsUpdated && this.offTodoListsUpdated();
-        this.setState({ authStateWasReceived: true, isAuthenticated: false, todoListId: null, todoListEvents: [] })
+        this.setState({ authStateWasReceived: true, isAuthenticated: false, todoListId: null, todoListEvents: [] });
+        this.data = new Data(new IndexedDBEventStore<DomainEventTypeName>("much-done", "event"));
       }
+      this.subscribeToTodoListUpdates();
     })
   }
   componentWillUnmount() {
     this.offAuthStateChanged && this.offAuthStateChanged();
     this.offTodoListUpdated && this.offTodoListUpdated();
     this.offTodoListsUpdated && this.offTodoListsUpdated();
+  }
+  subscribeToTodoListUpdates = () => {
+    this.offTodoListsUpdated = this.data.onTodoListsUpdated(events => {
+      let lists = new TodoLists(events);
+      if (!this.state.todoListId && lists.ids.length) {
+        // The client had no TodoList and one was created.
+        this.setState({ todoListId: lists.ids[0] })
+        this.offTodoListUpdated = this.data.onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
+      } else if (this.state.todoListId && !lists.ids.length) {
+        // The client had a TodoList but the default TodoList was deleted.
+        this.offTodoListUpdated && this.offTodoListUpdated();
+        this.setState({ todoListId: null, todoListEvents: [] })
+      } else if (this.state.todoListId && lists.ids.length && this.state.todoListId !== lists.ids[0]) {
+        // The client had a TodoList but a different TodoList was made the default.
+        this.offTodoListUpdated && this.offTodoListUpdated();
+        this.setState({ todoListId: lists.ids[0] })
+        this.offTodoListUpdated = this.data.onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
+      }
+    });
   }
   login = (rememberMe?: boolean) => {
     let persistence = (rememberMe)
@@ -86,12 +94,12 @@ export class App extends React.PureComponent<{}, AppState> {
     let todoList = new TodoList(this.state.todoListEvents);
     command(todoList);
     if (todoList.uncommittedEvents.length) {
-      await addEvents(todoList.uncommittedEvents);
+      await this.data.addEvents(todoList.uncommittedEvents);
       if (!this.state.todoListId && todoList.id) {
         this.setState({
           todoListId: todoList.id
         });
-        this.offTodoListUpdated = onTodoListUpdated(todoList.id, events => this.setState({ todoListEvents: events }));
+        this.offTodoListUpdated = this.data.onTodoListUpdated(todoList.id, events => this.setState({ todoListEvents: events }));
       }
     }
   }

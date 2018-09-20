@@ -50,56 +50,59 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
     );
     return (
       <>
-      <div className="navbar navbar-default navbar-static-top">
-        <div className="container">
-          <div className="navbar-header">
-            <span className="navbar-brand"><span className="glyphicon glyphicon-check" aria-hidden="true"></span> MuchDone</span>
-          </div>
-          {this.props.authStateWasReceived
-            ? <LoginBtn 
-                isAuthenticated={this.props.isAuthenticated} 
+        <div className="navbar navbar-default navbar-static-top">
+          <div className="container">
+            <div className="navbar-header">
+              <span className="navbar-brand"><span className="glyphicon glyphicon-check" aria-hidden="true"></span> MuchDone</span>
+            </div>
+            {this.props.authStateWasReceived
+              ? <LoginBtn
+                isAuthenticated={this.props.isAuthenticated}
                 login={this.props.login}
                 logout={this.props.logout} />
-            : null
-          }
-        </div>
-      </div>
-      <div className="container">
-        <div className="row">
-          <div className="col-sm-8">
-            {this.state.history
-              ? <HistoryTodoListPanel
-                todos={todoList.todos}
-                completedTodos={todoList.completedTodos}
-              />
-              : <TodoListPanel
-                todos={todoList.todos}
-                completedTodos={todoList.completedTodos}
-                addTodo={this.props.addTodo}
-                completeTodo={this.props.completeTodo}
-                uncompleteTodo={this.props.uncompleteTodo}
-                deleteTodo={this.props.deleteTodo}
-                moveTodoUp={this.props.moveTodoUp}
-                moveTodoDown={this.props.moveTodoDown}
-                renameTodo={this.props.renameTodo}
-              />
+              : null
             }
           </div>
-          <div className="col-sm-4">
-            <h4>Domain Events</h4>
-            {this.props.events.length
-              ? <EventList
-                disableOnClickOutside={!this.state.history}
-                events={this.props.events}
-                showHistoryVersion={this.showHistoryVersion}
-                showCurrentVersion={this.showCurrentVersion} />
-              : <EventListEmpty />}
-          </div>
         </div>
-        <footer>
-          <p>&copy; 2018 - Jon Brian Skog</p>
-        </footer>
-      </div>
+        <div className="container">
+          {this.props.authStateWasReceived
+            ? <div className="row">
+              <div className="col-sm-8">
+                {this.state.history
+                  ? <HistoryTodoListPanel
+                    todos={todoList.todos}
+                    completedTodos={todoList.completedTodos}
+                  />
+                  : <TodoListPanel
+                    todos={todoList.todos}
+                    completedTodos={todoList.completedTodos}
+                    addTodo={this.props.addTodo}
+                    completeTodo={this.props.completeTodo}
+                    uncompleteTodo={this.props.uncompleteTodo}
+                    deleteTodo={this.props.deleteTodo}
+                    moveTodoUp={this.props.moveTodoUp}
+                    moveTodoDown={this.props.moveTodoDown}
+                    renameTodo={this.props.renameTodo}
+                  />
+                }
+              </div>
+              <div className="col-sm-4">
+                <h4>Domain Events</h4>
+                {this.props.events.length
+                  ? <EventList
+                    disableOnClickOutside={!this.state.history}
+                    events={this.props.events}
+                    showHistoryVersion={this.showHistoryVersion}
+                    showCurrentVersion={this.showCurrentVersion} />
+                  : <EventListEmpty />}
+              </div>
+            </div>
+            : null
+          }
+          <footer>
+            <p>&copy; 2018 - Jon Brian Skog</p>
+          </footer>
+        </div>
       </>
     );
   }

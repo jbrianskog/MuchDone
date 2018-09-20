@@ -2,21 +2,6 @@ import * as firebase from "firebase";
 import { ESEvent, EventStore, UncommittedESEvent, SubCallback, Unsub } from "./event-store";
 
 export class FirebaseRTDBEventStore<T> implements EventStore<T> {
-  // private isOrderedByVersion(events: ESEvent<T>[]) {
-  //   let isOrdered = true;
-  //   let prev = 0;
-  //   for (const event of events) {
-  //     if (event.version < prev)
-  //     {
-  //       isOrdered = false;
-  //       console.log("NOT ordered by version", event);
-  //     }
-  //     prev = event.version;
-  //   }
-  //   if (isOrdered) {
-  //     console.log("IS ordered by version");
-  //   }
-  // }
   protected async getEvents(path: string, version?: number): Promise<ESEvent<T>[]> {
     let user = firebase.auth().currentUser;
     if (!user) {
