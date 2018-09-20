@@ -36,7 +36,7 @@ class TodoRenameFormInner extends React.PureComponent<TodoRenameFormProps & Inje
       <form role="form" onSubmit={this.onSubmit}>
         <label htmlFor={inputId} className="sr-only">New Name</label>
         <div className="input-group">
-          <input id={inputId} name="name" type="text" className="form-control" onChange={this.onChange} value={this.state.value} required />
+          <input id={inputId} name="name" type="text" className="form-control" onChange={this.onChange} value={this.state.value} required maxLength={200} />
           <span className="input-group-btn">
             <button type="submit" className="btn btn-success" aria-label="Rename To-do">
               <span className="glyphicon glyphicon-pencil" aria-hidden="true" />

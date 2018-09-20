@@ -32,7 +32,7 @@ export class TodoAddForm extends React.PureComponent<TodoAddFormProps, TodoAddFo
       <form role="form" onSubmit={this.onSubmit}>
         <label htmlFor={inputId} className="sr-only">New To-do Name</label>
         <div className="input-group">
-          <input id={inputId} name="name" type="text" className="form-control" placeholder="What do you need to do?" onChange={this.onChange} value={this.state.value} required />
+          <input id={inputId} name="name" type="text" className="form-control" placeholder="What do you need to do?" onChange={this.onChange} value={this.state.value} required  maxLength={200} />
           <span className="input-group-btn">
             <button type="submit" className="btn btn-success" aria-label="Add To-do">
               <span className="glyphicon glyphicon-plus" aria-hidden="true"></span>
