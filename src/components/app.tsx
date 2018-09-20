@@ -17,6 +17,7 @@ interface AppState {
   todoListEvents: DomainEvent[];
   isAuthenticated: boolean;
   authStateWasReceived: boolean;
+  indexedDBSupported: boolean;
 }
 
 export class App extends React.PureComponent<{}, AppState> {
@@ -31,6 +32,7 @@ export class App extends React.PureComponent<{}, AppState> {
       todoListEvents: [],
       isAuthenticated: false,
       authStateWasReceived: false,
+      indexedDBSupported: ("indexedDB" in window),
     };
   }
   componentDidMount() {
@@ -43,13 +45,16 @@ export class App extends React.PureComponent<{}, AppState> {
         // login
         this.setState({ authStateWasReceived: true, isAuthenticated: true, todoListId: null, todoListEvents: [] });
         this.data = new Data(new FirebaseRTDBEventStore<DomainEventTypeName>());
+        this.subscribeToTodoListUpdates();
         updateUserProfile().catch(console.log);
       } else {
         // logout
         this.setState({ authStateWasReceived: true, isAuthenticated: false, todoListId: null, todoListEvents: [] });
-        this.data = new Data(new IndexedDBEventStore<DomainEventTypeName>("much-done", "event"));
+        if (this.state.indexedDBSupported) {
+          this.data = new Data(new IndexedDBEventStore<DomainEventTypeName>("much-done", "event"));
+          this.subscribeToTodoListUpdates();
+        }
       }
-      this.subscribeToTodoListUpdates();
     })
   }
   componentWillUnmount() {
@@ -137,6 +142,7 @@ export class App extends React.PureComponent<{}, AppState> {
         events={this.state.todoListEvents}
         authStateWasReceived={this.state.authStateWasReceived}
         isAuthenticated={this.state.isAuthenticated}
+        indexedDBSupported={this.state.indexedDBSupported}
         login={this.login}
         logout={this.logout}
         addTodo={this.addTodo}

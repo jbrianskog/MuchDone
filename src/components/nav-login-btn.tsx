@@ -10,7 +10,7 @@ interface LoginBtnState {
   rememberMe: boolean
 }
 
-export class LoginBtn extends React.PureComponent<LoginBtnProps, LoginBtnState> {
+export class NavLoginBtn extends React.PureComponent<LoginBtnProps, LoginBtnState> {
   constructor(props: LoginBtnProps) {
     super(props);
     this.state = {
@@ -29,12 +29,12 @@ export class LoginBtn extends React.PureComponent<LoginBtnProps, LoginBtnState> 
         {(this.props.isAuthenticated)
           ? <button onClick={this.props.logout} type="button" className="btn btn-link navbar-btn">Sign out</button>
           : <>
-              <label className="checkbox-inline navbar-text">
-                <input type="checkbox" checked={this.state.rememberMe} onChange={this.rememberMeChanged} />
-                Remember me
+            <label className="checkbox-inline navbar-text">
+              <input type="checkbox" checked={this.state.rememberMe} onChange={this.rememberMeChanged} />
+              Remember me
               </label>
-              <button onClick={this.loginClicked} type="button" className="btn btn-success navbar-btn">Sign in with Google</button>
-            </>
+            <button onClick={this.loginClicked} type="button" className="btn btn-success navbar-btn">Sign in with Google</button>
+          </>
         }
       </div>
     );
