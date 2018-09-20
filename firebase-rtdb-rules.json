@@ -2,6 +2,21 @@
   "rules": {
     "users": {
       "$uid": {
+        "profile": {
+          ".write": "$uid === auth.uid && newData.exists()",
+          "$provider_id": {
+            ".validate": "$provider_id === auth.token.firebase.sign_in_provider.replace('.', ',') && newData.hasChildren(['email', 'emailVerified'])",
+            "email": {
+              ".validate": "newData.val() === auth.token.email"
+            },
+            "emailVerified": {
+              ".validate": "newData.val() === auth.token.email_verified"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
         "events": {
           ".read": "$uid === auth.uid",
           ".indexOn": [

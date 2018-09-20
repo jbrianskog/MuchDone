@@ -2,6 +2,7 @@ import * as React from "react";
 import * as firebase from "firebase";
 import { v4 as uuid } from "uuid";
 import { addEvents, onTodoListUpdated, onTodoListsUpdated } from "data";
+import { updateUserProfile } from "data/firebase-rtdb"
 import { TodoList } from "domain/todo-list";
 import { DomainEvent } from "domain/events";
 import { Body } from "./body";
@@ -35,6 +36,7 @@ export class App extends React.PureComponent<{}, AppState> {
       console.log(user);
       if (user) {
         // login
+        updateUserProfile().catch(console.log);
         this.setState({ authStateWasReceived: true, isAuthenticated: true });
         this.offTodoListsUpdated = onTodoListsUpdated(events => {
           let lists = new TodoLists(events);
