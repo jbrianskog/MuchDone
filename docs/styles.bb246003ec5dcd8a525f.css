@@ -1,0 +1,40 @@
+body {
+  padding-bottom: 20px;
+}
+
+footer {
+  margin-top: 30px;
+}
+
+.navbar-text {
+  margin-right: 15px;
+}
+
+.no-indexeddb-alert {
+  display: inline-block;
+}
+
+.todo-list-todo-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.todo-list-todo-title {
+  flex: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-list-todo-btn-group {
+  flex: none;
+}
+
+.event-list-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*# sourceMappingURL=styles.bb246003ec5dcd8a525f.css.map*/
