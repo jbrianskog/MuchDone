@@ -8,9 +8,9 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
       throw new Error("getEvents(). User not logged into Firebase.");
     }
     let events = [] as ESEvent<T>[];
-    let ref: firebase.database.Reference | firebase.database.Query = firebase.database().ref(`/users/${user.uid}/${path}`);
+    let ref: firebase.database.Reference | firebase.database.Query = firebase.database().ref(`/users/${user.uid}/${path}`).orderByChild("version");
     if (version) {
-      ref = ref.orderByChild("version").endAt(version);
+      ref = ref.endAt(version);
     }
     let snap = await ref.once("value");
     snap.forEach(childSnap => {
@@ -57,21 +57,26 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   onEventsByTypeUpdated(typeId: T, callback: SubCallback<T>): Unsub {
     return this.onEventsUpdated(`eventsByType/${typeId}`, callback);
   }
-  async addEvents(events: UncommittedESEvent<T>[]): Promise<void> {
+  async addEvents(events: (UncommittedESEvent<T>|ESEvent<T>)[]): Promise<void> {
     let user = firebase.auth().currentUser;
     if (!user) {
       throw new Error("addEvents(). User not logged into Firebase.");
     }
-    let userRef = firebase.database().ref(`/users/${user.uid}`);
+    let ref = firebase.database().ref(`/users/${user.uid}`);
     let updates: any = {};
     for (const event of events) {
-      let eventRef = userRef.child("/events").push();
+      let eventRef = ref.child("/events").push();
       let key = eventRef.key;
-      (event as any).version = firebase.database.ServerValue.TIMESTAMP;
       updates[`/events/${key}`] = event;
       updates[`/eventsByAggregate/${event.aggregateId}/${key}`] = event;
       updates[`/eventsByType/${event.type}/${key}`] = event;
     }
-    return userRef.update(updates);
+    return ref.update(updates);
+  }
+  async addUncommittedEvents(events: UncommittedESEvent<T>[]): Promise<void> {
+    return this.addEvents(events.map(event => Object.assign({ version: firebase.database.ServerValue.TIMESTAMP }, event)));
+  }
+  async importEvents(events: ESEvent<T>[], aggregateId: string): Promise<void> {
+    return this.addEvents(events.map(event => Object.assign({}, event, { aggregateId })));
   }
 }

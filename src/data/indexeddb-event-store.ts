@@ -1,5 +1,5 @@
 import idb, { Cursor, DB } from "idb";
-import { ESEvent, EventStore, SubCallback, Unsub, UncommittedESEvent } from "./event-store";
+import { ESEvent, SubCallback, Unsub, UncommittedESEvent, DeleteableEventStore } from "./event-store";
 
 const eventIdPropName = "id";
 const versionPropName = "version";
@@ -11,7 +11,7 @@ interface Sub<T> {
   action: SubAction;
 }
 
-export class IndexedDBEventStore<T> implements EventStore<T> {
+export class IndexedDBEventStore<T> implements DeleteableEventStore<T> {
   protected _subs = new Map<symbol, Sub<T>>();
   constructor(readonly dbName: string, readonly storeName: string) { }
   protected async open(): Promise<DB> {
@@ -49,7 +49,7 @@ export class IndexedDBEventStore<T> implements EventStore<T> {
     }
     let range = (version)
       ? IDBKeyRange.upperBound(version)
-      : IDBKeyRange.lowerBound(0);
+      : null;
     // iterateCursor() should be replaced with usage of openCursor() when "idb" decides it is safe to do so.
     index.iterateCursor(range, cursorCallback);
     await tx.complete;
@@ -87,11 +87,7 @@ export class IndexedDBEventStore<T> implements EventStore<T> {
       () => this.getEventsByType(typeId),
       callback);
   }
-  async addEvents(events: UncommittedESEvent<T>[]): Promise<void> {
-    let db = await this.open();
-    let tx = db.transaction(this.storeName, "readwrite");
-    let store = tx.objectStore(this.storeName);
-    let addPromises = events.map(event => store.add(Object.assign({ version: Date.now() }, event)));
+  async triggerSubs(events: (UncommittedESEvent<T>|ESEvent<T>)[]): Promise<void> {
     let triggeredSubActions: SubAction[] = [];
     for (const sub of this._subs.values()) {
       for (const e of events) {
@@ -101,8 +97,31 @@ export class IndexedDBEventStore<T> implements EventStore<T> {
         }
       }
     }
+    await Promise.all(triggeredSubActions.map(action => action()));
+  }
+  async addEvents(events: (UncommittedESEvent<T>|ESEvent<T>)[]): Promise<void> {
+    let db = await this.open();
+    let tx = db.transaction(this.storeName, "readwrite");
+    let store = tx.objectStore(this.storeName);
+    let addPromises = events.map(event => store.add(event));
     await Promise.all(addPromises);
     await tx.complete;
-    await Promise.all(triggeredSubActions.map(action => action()));
+    return this.triggerSubs(events);
+  }
+  async addUncommittedEvents(events: UncommittedESEvent<T>[]): Promise<void> {
+    return this.addEvents(events.map(event => Object.assign({ version: Date.now() }, event)));
+  }
+  async importEvents(events: ESEvent<T>[], aggregateId: string): Promise<void> {
+    return this.addEvents(events.map(event => Object.assign({}, event, { aggregateId })));
+  }
+  async deleteEvents(): Promise<void> {
+    // This methods does not trigger any subs as it is currently intended to only
+    // be used for importing todo lists to Firestore and not while this is the active event store.
+    // If you intend to use this method while this event store is active,
+    // you should trigger subs for each deleted event.
+    let db = await this.open();
+    let tx = db.transaction(this.storeName, "readwrite");
+    await tx.objectStore(this.storeName).clear();
+    return tx.complete;
   }
 }
