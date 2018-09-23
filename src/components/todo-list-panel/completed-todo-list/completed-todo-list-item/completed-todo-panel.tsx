@@ -24,7 +24,7 @@ export class CompletedTodoPanel extends React.PureComponent<CompletedTodoPanelPr
   }
   render() {
     return (
-      <a onClick={this.onClick} className="list-group-item list-group-item-success">
+      <a role="button" tabIndex={0} onClick={this.onClick} className="list-group-item list-group-item-success">
         <div className="todo-list-todo-panel">
           <CompletedTodoTitle title={this.props.todo.name} completionDate={new Date(this.props.todo.completionTimestamp)} />
           <TodoPanelBtnGroup

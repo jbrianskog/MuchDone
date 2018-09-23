@@ -10,7 +10,7 @@ export class AlertLoginLink extends React.PureComponent<AlertLoginLinkProps> {
   };
   render() {
     return (
-      <a onClick={this.loginClicked}>Sign in with Google</a>
+      <a role="button" tabIndex={0} onClick={this.loginClicked}>Sign in with Google</a>
     );
   }
 }

@@ -24,7 +24,7 @@ export class TodoPanel extends React.PureComponent<TodoPanelProps> {
   }
   render() {
     return (
-      <a onClick={this.onClick} className="list-group-item">
+      <a role="button" tabIndex={0} onClick={this.onClick} className="list-group-item">
         <div className="todo-list-todo-panel">
           <TodoTitle title={this.props.todo.name} />
           <TodoPanelBtnGroup
