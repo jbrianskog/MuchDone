@@ -8,6 +8,7 @@ import { TodoListPanel } from "./todo-list-panel";
 import { DomainEvent } from "domain/events";
 import { NavLoginBtn } from "./nav-login-btn";
 import { NoIndexedDBAlert } from "./no-indexeddb-alert";
+import { LocalModeAlert } from "./local-mode-alert";
 
 export interface BodyProps {
   events: DomainEvent[];
@@ -28,6 +29,7 @@ export interface BodyProps {
 interface BodyState {
   history: boolean;
   historyVersion: number;
+  showLocalModeAlert: boolean;
 }
 
 export class Body extends React.PureComponent<BodyProps, BodyState> {
@@ -36,6 +38,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
     this.state = {
       history: false,
       historyVersion: 0,
+      showLocalModeAlert: true,
     };
   }
   showHistoryVersion = (version: number) => {
@@ -44,6 +47,7 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
   showCurrentVersion = () => {
     this.setState({ history: false, historyVersion: 0 });
   }
+  hideLocalModeAlert = () => this.setState({ showLocalModeAlert: false });
   render() {
     let todoList = new TodoList(
       this.state.history
@@ -55,8 +59,9 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
         <div className="navbar navbar-default navbar-static-top">
           <div className="container">
             <div className="navbar-header">
-              <span className="navbar-brand"><span className="glyphicon glyphicon-check" aria-hidden="true"></span> MuchDone</span>
+              <span className="navbar-brand"><span className="glyphicon glyphicon-check" aria-hidden="true"></span> MuchDone </span>
             </div>
+            <span className="navbar-text">It's a to-do list app.</span>
             {this.props.authStateWasReceived
               ? <NavLoginBtn
                 isAuthenticated={this.props.isAuthenticated}
@@ -71,37 +76,45 @@ export class Body extends React.PureComponent<BodyProps, BodyState> {
             ? null
             : !this.props.indexedDBSupported
               ? <NoIndexedDBAlert login={this.props.login} />
-              : <div className="row">
-                <div className="col-sm-8">
-                  {this.state.history
-                    ? <HistoryTodoListPanel
-                      todos={todoList.todos}
-                      completedTodos={todoList.completedTodos}
-                    />
-                    : <TodoListPanel
-                      todos={todoList.todos}
-                      completedTodos={todoList.completedTodos}
-                      addTodo={this.props.addTodo}
-                      completeTodo={this.props.completeTodo}
-                      uncompleteTodo={this.props.uncompleteTodo}
-                      deleteTodo={this.props.deleteTodo}
-                      moveTodoUp={this.props.moveTodoUp}
-                      moveTodoDown={this.props.moveTodoDown}
-                      renameTodo={this.props.renameTodo}
-                    />
-                  }
+              : <>
+                {!this.props.isAuthenticated && this.state.showLocalModeAlert
+                  ? <LocalModeAlert
+                      login={this.props.login}
+                      hide={this.hideLocalModeAlert}/>
+                  : null
+                }
+                <div className="row">
+                  <div className="col-sm-8">
+                    {this.state.history
+                      ? <HistoryTodoListPanel
+                        todos={todoList.todos}
+                        completedTodos={todoList.completedTodos}
+                      />
+                      : <TodoListPanel
+                        todos={todoList.todos}
+                        completedTodos={todoList.completedTodos}
+                        addTodo={this.props.addTodo}
+                        completeTodo={this.props.completeTodo}
+                        uncompleteTodo={this.props.uncompleteTodo}
+                        deleteTodo={this.props.deleteTodo}
+                        moveTodoUp={this.props.moveTodoUp}
+                        moveTodoDown={this.props.moveTodoDown}
+                        renameTodo={this.props.renameTodo}
+                      />
+                    }
+                  </div>
+                  <div className="col-sm-4">
+                    <h4>Domain Events</h4>
+                    {this.props.events.length
+                      ? <EventList
+                        disableOnClickOutside={!this.state.history}
+                        events={this.props.events}
+                        showHistoryVersion={this.showHistoryVersion}
+                        showCurrentVersion={this.showCurrentVersion} />
+                      : <EventListEmpty />}
+                  </div>
                 </div>
-                <div className="col-sm-4">
-                  <h4>Domain Events</h4>
-                  {this.props.events.length
-                    ? <EventList
-                      disableOnClickOutside={!this.state.history}
-                      events={this.props.events}
-                      showHistoryVersion={this.showHistoryVersion}
-                      showCurrentVersion={this.showCurrentVersion} />
-                    : <EventListEmpty />}
-                </div>
-              </div>
+                </>
           }
           <footer>
             <p>&copy; 2018 - Jon Brian Skog</p>
