@@ -76,7 +76,4 @@ export class FirebaseRTDBEventStore<T> implements EventStore<T> {
   async addUncommittedEvents(events: UncommittedESEvent<T>[]): Promise<void> {
     return this.addEvents(events.map(event => Object.assign({ version: firebase.database.ServerValue.TIMESTAMP }, event)));
   }
-  async importEvents(events: ESEvent<T>[], aggregateId: string): Promise<void> {
-    return this.addEvents(events.map(event => Object.assign({}, event, { aggregateId })));
-  }
 }

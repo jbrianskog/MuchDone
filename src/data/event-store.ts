@@ -14,8 +14,8 @@ export interface EventStore<T> {
   getEventsByType(typeId: T, version?: number): Promise<ESEvent<T>[]>;
   onEventsByAggregateUpdated(aggregateId: string, callback: SubCallback<T>): Unsub;
   onEventsByTypeUpdated(typeId: T, callback: SubCallback<T>): Unsub;
+  addEvents(events: (UncommittedESEvent<T>|ESEvent<T>)[]): Promise<void>;
   addUncommittedEvents(events: UncommittedESEvent<T>[]): Promise<void>;
-  importEvents(events: ESEvent<T>[], aggregateId: string): Promise<void>;
 }
 export interface DeleteableEventStore<T> extends EventStore<T> {
   deleteEvents(): Promise<void>;

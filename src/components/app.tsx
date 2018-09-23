@@ -47,7 +47,12 @@ export class App extends React.PureComponent<{}, AppState> {
         this.data = new Data(new FirebaseRTDBEventStore<DomainEventTypeName>());
         this.subscribeToTodoListUpdates(todoListId => {
           if (this.state.indexedDBSupported) {
+            this.offTodoListsUpdated && this.offTodoListsUpdated();
             this.data.importTodoList(new IndexedDBEventStore<DomainEventTypeName>("much-done", "event"), todoListId)
+              .then(() => {
+                this.subscribeToTodoListUpdates();
+              })
+              .catch(console.log);
           }
         });
         updateUserProfile().catch(console.log);
@@ -66,24 +71,28 @@ export class App extends React.PureComponent<{}, AppState> {
     this.offTodoListUpdated && this.offTodoListUpdated();
     this.offTodoListsUpdated && this.offTodoListsUpdated();
   }
-  subscribeToTodoListUpdates = (onListIdLoaded?: (todoListId: string) => void) => {
+  subscribeToTodoListUpdates = (onListIdLoaded?: (todoListId: string | null) => void) => {
     this.offTodoListsUpdated = this.data.onTodoListsUpdated(events => {
       let lists = new TodoLists(events);
-      if (!this.state.todoListId && lists.ids.length) {
-        // The client had no TodoList and one was created.
-        // This should also match when the user signs in because the local todoListId should be cleared.
-        this.setState({ todoListId: lists.ids[0] });
-        onListIdLoaded && onListIdLoaded(lists.ids[0]);
-        this.offTodoListUpdated = this.data.onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
-      } else if (this.state.todoListId && !lists.ids.length) {
+      let listId = lists.ids[0];
+      if (!this.state.todoListId) {
+        if (listId) {
+          // The client had no TodoList and one was created.
+          this.setState({ todoListId: listId });
+          onListIdLoaded && onListIdLoaded(listId);
+          this.offTodoListUpdated = this.data.onTodoListUpdated(listId, events => this.setState({ todoListEvents: events }));
+        } else {
+          onListIdLoaded && onListIdLoaded(null);
+        }
+      } else if (this.state.todoListId && !listId) {
         // The client had a TodoList but the default TodoList was deleted.
         this.offTodoListUpdated && this.offTodoListUpdated();
         this.setState({ todoListId: null, todoListEvents: [] });
-      } else if (this.state.todoListId && lists.ids.length && this.state.todoListId !== lists.ids[0]) {
+      } else if (this.state.todoListId && listId && this.state.todoListId !== listId) {
         // The client had a TodoList but a different TodoList was made the default.
         this.offTodoListUpdated && this.offTodoListUpdated();
-        this.setState({ todoListId: lists.ids[0] });
-        this.offTodoListUpdated = this.data.onTodoListUpdated(lists.ids[0], events => this.setState({ todoListEvents: events }));
+        this.setState({ todoListId: listId });
+        this.offTodoListUpdated = this.data.onTodoListUpdated(listId, events => this.setState({ todoListEvents: events }));
       }
     });
   }

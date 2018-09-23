@@ -111,9 +111,6 @@ export class IndexedDBEventStore<T> implements DeleteableEventStore<T> {
   async addUncommittedEvents(events: UncommittedESEvent<T>[]): Promise<void> {
     return this.addEvents(events.map(event => Object.assign({ version: Date.now() }, event)));
   }
-  async importEvents(events: ESEvent<T>[], aggregateId: string): Promise<void> {
-    return this.addEvents(events.map(event => Object.assign({}, event, { aggregateId })));
-  }
   async deleteEvents(): Promise<void> {
     // This methods does not trigger any subs as it is currently intended to only
     // be used for importing todo lists to Firestore and not while this is the active event store.
