@@ -10,7 +10,7 @@ export class NoIndexedDBAlert extends React.PureComponent<NoIndexedDBAlertProps>
     return (
       <>
         <div className="alert alert-warning no-indexeddb-alert" role="alert">
-          <span className="glyphicon glyphicon-exclamation-sign" aria-hidden="true" /><span>    Your browser doesn't support storing your to-dos locally.</span>
+          <span className="glyphicon glyphicon-exclamation-sign" aria-hidden="true" /><span>Your browser doesn't support storing your to-dos locally.</span>
         </div>
         <p>You have two options:</p>
         <ol>
