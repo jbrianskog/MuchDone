@@ -41,7 +41,7 @@
               ".validate": "newData.isString() && newData.val().length === 36"
             },
             "todoName": {
-              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 200"
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
             },
             "todoCompletionTimestamp": {
               ".validate": "newData.isNumber()"
@@ -80,7 +80,7 @@
                 ".validate": "newData.isString() && newData.val().length === 36"
               },
               "todoName": {
-                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 200"
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
               },
               "todoCompletionTimestamp": {
                 ".validate": "newData.isNumber()"
@@ -120,7 +120,7 @@
                 ".validate": "newData.isString() && newData.val().length === 36"
               },
               "todoName": {
-                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 200"
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
               },
               "todoCompletionTimestamp": {
                 ".validate": "newData.isNumber()"
